@@ -13,11 +13,9 @@ func NewHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
 	return func(w dns.ResponseWriter, req *dns.Msg) {
 		defer w.Close()
 		msg := handle(zone, req)
-		if msg == nil {
-			msg = &dns.Msg{}
-			msg.SetRcode(req, dns.RcodeServerFailure)
+		if msg != nil {
+			w.WriteMsg(msg)
 		}
-		w.WriteMsg(msg)
 	}
 }
 
@@ -27,7 +25,10 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 	for _, question := range req.Question {
 		if question.Qtype != dns.TypeA && question.Qtype != dns.TypeAAAA {
 			log.Debug("skip unknown request", "type", typeToString(question.Qtype))
-			return nil
+			// TODO(buglloc): should we return SERVFAIL?
+			//msg := &dns.Msg{}
+			//msg.SetRcode(req, dns.RcodeServerFailure)
+			continue
 		}
 
 		ip, err := ipFromName(question, zone)
@@ -38,6 +39,10 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 
 		if cfg.PrintReqs {
 			log.Info("cooking response", "type", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		}
+
+		if ip == nil {
+			continue
 		}
 
 		head := dns.RR_Header{
@@ -78,10 +83,18 @@ func ipFromName(question dns.Question, zone string) (ip net.IP, err error) {
 	switch {
 	case suffix == ".p":
 		ip, err = ResolveIp(question.Qtype, name)
-	case suffix == ".4" && question.Qtype == dns.TypeA:
-		ip = parseIp(dns.TypeA, name)
-	case suffix == ".6" && question.Qtype == dns.TypeAAAA:
-		ip = parseIp(dns.TypeAAAA, name)
+	case suffix == ".4":
+		if question.Qtype == dns.TypeA {
+			ip = parseIp(dns.TypeA, name)
+		} else if !cfg.StrictMode {
+			defaultIp(question.Qtype)
+		}
+	case suffix == ".6":
+		if question.Qtype == dns.TypeAAAA {
+			ip = parseIp(dns.TypeAAAA, name)
+		} else if !cfg.StrictMode {
+			defaultIp(question.Qtype)
+		}
 	default:
 		ip = defaultIp(question.Qtype)
 	}

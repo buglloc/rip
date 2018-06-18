@@ -41,6 +41,8 @@ func init() {
 		"default ipv4 address")
 	flags.String("ipv6", "::1",
 		"default ipv6 address")
+	flags.Bool("strict", false,
+		"don't return default IPs for not supported requests")
 	flags.Bool("verbose", false,
 		"verbose output")
 

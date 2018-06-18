@@ -14,5 +14,6 @@ var (
 	// upstream DNS server for proxying
 	Upstream = "8.8.8.8:53"
 	// Print requests
-	PrintReqs bool
+	PrintReqs  bool
+	StrictMode bool
 )
