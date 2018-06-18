@@ -26,6 +26,7 @@ $ rip --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
 # IPv6
     2a01-7e01--f03c-91ff-fe3b-c9ba.6.example.com    ->  2a01:7e01::f03c:91ff:fe3b:c9ba  && 77.88.55.70
     foo.2a01-7e01--f03c-91ff-fe3b-c9ba.6.example.com    -> 2a01:7e01::f03c:91ff:fe3b:c9ba  && 77.88.55.70
+    foo.--1.6.example.com   ->  ::1
 
 # Proxy
     ya.ru.p.example.com ->  87.250.250.242 && 2a02:6b8::2:242
