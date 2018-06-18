@@ -71,13 +71,12 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 }
 
 func ipFromName(question dns.Question, zone string) (ip net.IP, err error) {
-	name := question.Name
-	name = name[:len(name)-len(zone)-1]
-	if len(name) <= 2 {
+	if len(question.Name)-len(zone) <= 3 {
 		ip = defaultIp(question.Qtype)
 		return
 	}
 
+	name := question.Name[:len(question.Name)-len(zone)-1]
 	i := len(name) - 2
 	name, suffix := name[:i], name[i:]
 	switch {
