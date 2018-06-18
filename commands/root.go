@@ -31,6 +31,8 @@ func init() {
 	flags := RootCmd.PersistentFlags()
 	flags.String("config", "",
 		"config file (default is $HOME/.rip.toml)")
+	flags.Bool("show", true,
+		"show requests")
 	flags.String("listen", ":53",
 		"address to listen on")
 	flags.StringSlice("zone", []string{"."},
@@ -90,5 +92,6 @@ func parseConfig(cmd *cobra.Command, args []string) error {
 	cfg.Addr = viper.GetString("listen")
 	cfg.IPv4 = net.ParseIP(viper.GetString("ipv4"))
 	cfg.IPv6 = net.ParseIP(viper.GetString("ipv6"))
+	cfg.PrintReqs = viper.GetBool("show")
 	return nil
 }

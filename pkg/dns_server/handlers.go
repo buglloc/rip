@@ -1,11 +1,10 @@
 package dns_server
 
 import (
-	"net"
-	"strings"
-
 	"github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
+	"net"
+	"strings"
 
 	"github.com/buglloc/rip/pkg/cfg"
 )
@@ -35,6 +34,10 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 		if err != nil {
 			log.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
 			continue
+		}
+
+		if cfg.PrintReqs {
+			log.Info("cooking response", "type", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 		}
 
 		head := dns.RR_Header{
