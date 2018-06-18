@@ -1,11 +1,13 @@
 package dns_server
 
 import (
-	"github.com/buglloc/rip/pkg/cfg"
-	"github.com/buglloc/simplelog"
-	"github.com/miekg/dns"
 	"net"
 	"strings"
+
+	"github.com/buglloc/simplelog"
+	"github.com/miekg/dns"
+
+	"github.com/buglloc/rip/pkg/cfg"
 )
 
 func NewHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
@@ -106,7 +108,7 @@ func parseIp(reqType uint16, name string) net.IP {
 	dotCounts := strings.Count(name, "-")
 	switch reqType {
 	case dns.TypeA:
-		if dotCounts != 4 {
+		if dotCounts != 3 {
 			return defaultIp(dns.TypeA)
 		}
 		return net.ParseIP(strings.Replace(name, "-", ".", -1))
