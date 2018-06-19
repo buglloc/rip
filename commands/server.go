@@ -31,7 +31,7 @@ func init() {
 		"default ipv6 address")
 	flags.String("upstream", "77.88.8.8:53",
 		"upstream DNS server")
-	flags.Bool("strict", false,
+	flags.Bool("strict", true,
 		"don't return default IPs for not supported requests")
 	flags.Bool("no-proxy", false,
 		"disable proxy mode")
