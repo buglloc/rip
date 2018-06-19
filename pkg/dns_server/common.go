@@ -7,6 +7,7 @@ import (
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/pkg/cfg"
+	"github.com/buglloc/rip/pkg/ip_utils"
 )
 
 func typeToString(reqType uint16) string {
@@ -29,6 +30,11 @@ func parseIp(reqType uint16, name string) net.IP {
 	}
 
 	dotCounts := strings.Count(name, "-")
+	if dotCounts == 0 {
+		// base-16 form
+		return ip_utils.HexToIp(name)
+	}
+
 	switch reqType {
 	case dns.TypeA:
 		if dotCounts != 3 {
