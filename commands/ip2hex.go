@@ -12,16 +12,16 @@ import (
 )
 
 var ip2Hex = &cobra.Command{
-	Use:   "ip2hex IP",
+	Use:   "ip2hex [IP] IP",
 	Short: "Convert IPs to base-16 form",
-	RunE:  runIp2Hex,
+	RunE:  runIp2HexCmd,
 }
 
 func init() {
 	RootCmd.AddCommand(ip2Hex)
 }
 
-func runIp2Hex(cmd *cobra.Command, args []string) error {
+func runIp2HexCmd(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("please provide IP")
 	}

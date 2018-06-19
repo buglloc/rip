@@ -9,18 +9,18 @@ import (
 
 	"github.com/buglloc/rip/pkg/cfg"
 	"github.com/buglloc/rip/pkg/cli"
-	"github.com/buglloc/rip/pkg/dns_server"
+	"github.com/buglloc/rip/pkg/ns_server"
 )
 
-var serverCmd = &cobra.Command{
-	Use:     "server --zone=example.com --zone=example1.com",
-	Short:   "Start RIP server",
+var nsServerCmd = &cobra.Command{
+	Use:     "ns --zone=example.com --zone=example1.com",
+	Short:   "Start RIP NS server",
 	PreRunE: parseServerConfig,
 	RunE:    runServerCmd,
 }
 
 func init() {
-	flags := serverCmd.PersistentFlags()
+	flags := nsServerCmd.PersistentFlags()
 	flags.String("listen", ":53",
 		"address to listen on")
 	flags.StringSlice("zone", []string{"."},
@@ -37,11 +37,11 @@ func init() {
 		"disable proxy mode")
 
 	cli.BindPFlags(flags)
-	RootCmd.AddCommand(serverCmd)
+	RootCmd.AddCommand(nsServerCmd)
 }
 
 func runServerCmd(cmd *cobra.Command, args []string) error {
-	dns_server.RunBackground()
+	ns_server.RunBackground()
 	cli.ListenInterrupt()
 	return nil
 }

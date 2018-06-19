@@ -14,7 +14,7 @@ import (
 
 var (
 	RootCmd = &cobra.Command{
-		Use:          "rip server --zone=example.com --zone=example1.com",
+		Use:          "rip",
 		Short:        "Wildcard DNS",
 		SilenceUsage: false,
 		PreRunE:      parseRootConfig,

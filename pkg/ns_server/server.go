@@ -1,4 +1,4 @@
-package dns_server
+package ns_server
 
 import (
 	"strings"

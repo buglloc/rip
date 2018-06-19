@@ -12,14 +12,14 @@ import (
 var uglify = &cobra.Command{
 	Use:   "uglify IP",
 	Short: "Obfuscate IP",
-	RunE:  runUglify,
+	RunE:  runUglifyCmd,
 }
 
 func init() {
 	RootCmd.AddCommand(uglify)
 }
 
-func runUglify(cmd *cobra.Command, args []string) error {
+func runUglifyCmd(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return errors.New("please provide IP")
 	}
