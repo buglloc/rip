@@ -1,8 +1,8 @@
 package dns_server
 
 import (
-	"time"
 	"net"
+	"time"
 
 	"github.com/miekg/dns"
 
@@ -42,11 +42,14 @@ func ResolveIp(reqType uint16, name string) (net.IP, error) {
 	switch rr.(type) {
 	case *dns.A:
 		ip = rr.(*dns.A).A
-		cache.Set(dns.TypeA, name, ttl, &ip)
 	case *dns.AAAA:
 		ip = rr.(*dns.AAAA).AAAA
-		cache.Set(dns.TypeAAAA, name, ttl, &ip)
+	case *dns.CNAME:
+		ip, err = ResolveIp(reqType, rr.(*dns.CNAME).Target)
 	}
 
+	if ip != nil {
+		cache.Set(reqType, name, ttl, &ip)
+	}
 	return ip, nil
 }
