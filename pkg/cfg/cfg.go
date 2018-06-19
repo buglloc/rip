@@ -12,7 +12,7 @@ var (
 	// default IPv6 address
 	IPv6 net.IP
 	// upstream DNS server for proxying
-	Upstream = "77.88.8.8:53"
+	Upstream = "1.1.1.1:53"
 	// Enable "strict" mode
 	StrictMode bool
 	AllowProxy bool

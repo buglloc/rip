@@ -3,10 +3,6 @@ package dns_server
 import (
 	"github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
-	"net"
-	"strings"
-
-	"github.com/buglloc/rip/pkg/cfg"
 )
 
 func NewHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
@@ -23,114 +19,51 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 	response := &dns.Msg{}
 	response.SetReply(req)
 	for _, question := range req.Question {
-		if question.Qtype != dns.TypeA && question.Qtype != dns.TypeAAAA {
+		switch question.Qtype {
+		case dns.TypeA, dns.TypeAAAA:
+			msg, ip, err := parseName(question, zone)
+			if err != nil {
+				log.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
+				continue
+			}
+
+			if msg != nil {
+				// parser craft own response
+				response.Answer = append(response.Answer, msg)
+				continue
+			}
+
+			if ip == nil {
+				continue
+			}
+
+			head := dns.RR_Header{
+				Name:   question.Name,
+				Rrtype: question.Qtype,
+				Class:  dns.ClassINET,
+				Ttl:    0,
+			}
+
+			var line dns.RR
+			if question.Qtype == dns.TypeA {
+				line = &dns.A{
+					Hdr: head,
+					A:   ip,
+				}
+			} else {
+				line = &dns.AAAA{
+					Hdr:  head,
+					AAAA: ip,
+				}
+			}
+			response.Answer = append(response.Answer, line)
+		default:
 			log.Debug("skip unknown request", "type", typeToString(question.Qtype))
 			// TODO(buglloc): should we return SERVFAIL?
 			//msg := &dns.Msg{}
 			//msg.SetRcode(req, dns.RcodeServerFailure)
-			continue
 		}
-
-		ip, err := ipFromName(question, zone)
-		if err != nil {
-			log.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
-			continue
-		}
-
-		log.Info("cooking response", "type", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
-
-		if ip == nil {
-			continue
-		}
-
-		head := dns.RR_Header{
-			Name:   question.Name,
-			Rrtype: question.Qtype,
-			Class:  dns.ClassINET,
-			Ttl:    0,
-		}
-
-		var line dns.RR
-		if question.Qtype == dns.TypeA {
-			line = &dns.A{
-				Hdr: head,
-				A:   ip,
-			}
-		} else {
-			line = &dns.AAAA{
-				Hdr:  head,
-				AAAA: ip,
-			}
-		}
-		response.Answer = append(response.Answer, line)
 	}
 
 	return response
-}
-
-func ipFromName(question dns.Question, zone string) (ip net.IP, err error) {
-	if len(question.Name)-len(zone) <= 3 {
-		ip = defaultIp(question.Qtype)
-		return
-	}
-
-	name := question.Name[:len(question.Name)-len(zone)-1]
-	i := len(name) - 2
-	name, suffix := name[:i], name[i:]
-	switch {
-	case suffix == ".p" && cfg.AllowProxy:
-		ip, err = ResolveIp(question.Qtype, name)
-	case suffix == ".4":
-		if question.Qtype == dns.TypeA {
-			ip = parseIp(dns.TypeA, name)
-		} else if !cfg.StrictMode {
-			defaultIp(question.Qtype)
-		}
-	case suffix == ".6":
-		if question.Qtype == dns.TypeAAAA {
-			ip = parseIp(dns.TypeAAAA, name)
-		} else if !cfg.StrictMode {
-			defaultIp(question.Qtype)
-		}
-	default:
-		ip = defaultIp(question.Qtype)
-	}
-
-	return
-}
-
-func typeToString(reqType uint16) string {
-	if t, ok := dns.TypeToString[reqType]; ok {
-		return t
-	}
-	return "unknown"
-}
-
-func defaultIp(reqType uint16) net.IP {
-	if reqType == dns.TypeA {
-		return cfg.IPv4
-	}
-	return cfg.IPv6
-}
-
-func parseIp(reqType uint16, name string) net.IP {
-	if indx := strings.LastIndex(name, "."); indx != -1 {
-		name = name[indx+1:]
-	}
-
-	dotCounts := strings.Count(name, "-")
-	switch reqType {
-	case dns.TypeA:
-		if dotCounts != 3 {
-			return defaultIp(dns.TypeA)
-		}
-		return net.ParseIP(strings.Replace(name, "-", ".", -1))
-	case dns.TypeAAAA:
-		if dotCounts < 2 {
-			return defaultIp(dns.TypeAAAA)
-		}
-		return net.ParseIP(strings.Replace(name, "-", ":", -1))
-	default:
-		return defaultIp(dns.TypeA)
-	}
 }

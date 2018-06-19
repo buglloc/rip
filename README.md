@@ -5,9 +5,10 @@
 DNS сервер парсит имя, пытается вычленить из него требуемый IP и формирует ответ.
 Правила:
 ```
-    <optional-prefix>.<IPv4>.4.<zone>  -> returns IPv4 address
-    <optional-prefix>.<IPv6>.6.<zone>  -> returns IPv6 address
+    <optional-prefix>.<IPv4>.4.<zone>  -> returns A record with <IPv4> address
+    <optional-prefix>.<IPv6>.6.<zone>  -> returns AAAA record with <IPv6> address
     <proxy-name>.p.<zone>  -> resolve proxy name and returns it
+    <cname>.c.<zone>  -> return CNAME record with <cname>
     <any-name>.<zone>  -> returns default address
 ```
 
@@ -27,6 +28,10 @@ $ rip --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
     2a01-7e01--f03c-91ff-fe3b-c9ba.6.example.com    ->  2a01:7e01::f03c:91ff:fe3b:c9ba  && 77.88.55.70
     foo.2a01-7e01--f03c-91ff-fe3b-c9ba.6.example.com    -> 2a01:7e01::f03c:91ff:fe3b:c9ba  && 77.88.55.70
     foo.--1.6.example.com   ->  ::1
+
+# Cname
+    ya.ru.c.example.com ->  canonical name ya.ru
+    google.com.c.example.com ->  canonical name google.com
 
 # Proxy
     ya.ru.p.example.com ->  87.250.250.242 && 2a02:6b8::2:242
