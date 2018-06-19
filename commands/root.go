@@ -31,8 +31,6 @@ func init() {
 	flags := RootCmd.PersistentFlags()
 	flags.String("config", "",
 		"config file (default is $HOME/.rip.toml)")
-	flags.Bool("show", true,
-		"show requests")
 	flags.String("listen", ":53",
 		"address to listen on")
 	flags.StringSlice("zone", []string{"."},
@@ -41,8 +39,12 @@ func init() {
 		"default ipv4 address")
 	flags.String("ipv6", "::1",
 		"default ipv6 address")
+	flags.String("upstream", "77.88.8.8:53",
+		"upstream DNS server")
 	flags.Bool("strict", false,
 		"don't return default IPs for not supported requests")
+	flags.Bool("no-proxy", false,
+		"disable proxy mode")
 	flags.Bool("verbose", false,
 		"verbose output")
 
@@ -75,6 +77,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 }
+
 func runRootCmd(cmd *cobra.Command, args []string) error {
 	dns_server.RunBackground()
 	cli.ListenInterrupt()
@@ -82,18 +85,19 @@ func runRootCmd(cmd *cobra.Command, args []string) error {
 }
 
 func parseConfig(cmd *cobra.Command, args []string) error {
-	if viper.GetBool("verbose") {
+	if viper.GetBool("Verbose") {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	cfg.Zones = viper.GetStringSlice("zone")
+	cfg.Zones = viper.GetStringSlice("Zone")
 	if len(cfg.Zones) == 0 {
 		return errors.New("Empty zone list, please provide at leas one")
 	}
 
-	cfg.Addr = viper.GetString("listen")
-	cfg.IPv4 = net.ParseIP(viper.GetString("ipv4"))
-	cfg.IPv6 = net.ParseIP(viper.GetString("ipv6"))
-	cfg.PrintReqs = viper.GetBool("show")
+	cfg.Addr = viper.GetString("Listen")
+	cfg.IPv4 = net.ParseIP(viper.GetString("Ipv4"))
+	cfg.IPv6 = net.ParseIP(viper.GetString("Ipv6"))
+	cfg.AllowProxy = !viper.GetBool("NoProxy")
+	cfg.Upstream = viper.GetString("Upstream")
 	return nil
 }

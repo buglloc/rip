@@ -37,9 +37,7 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 			continue
 		}
 
-		if cfg.PrintReqs {
-			log.Info("cooking response", "type", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
-		}
+		log.Info("cooking response", "type", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 
 		if ip == nil {
 			continue
@@ -80,7 +78,7 @@ func ipFromName(question dns.Question, zone string) (ip net.IP, err error) {
 	i := len(name) - 2
 	name, suffix := name[:i], name[i:]
 	switch {
-	case suffix == ".p":
+	case suffix == ".p" && cfg.AllowProxy:
 		ip, err = ResolveIp(question.Qtype, name)
 	case suffix == ".4":
 		if question.Qtype == dns.TypeA {

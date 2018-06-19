@@ -2,12 +2,12 @@ package dns_server
 
 import (
 	"time"
+	"net"
 
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/pkg/cfg"
 	"github.com/buglloc/rip/pkg/dns_cache"
-	"net"
 )
 
 var (
