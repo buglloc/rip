@@ -22,11 +22,18 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 	switch {
 	case suffix == ".p" && cfg.AllowProxy:
 		ip, err = ResolveIp(question.Qtype, name)
-		log.Info("cooking response", "mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		if err != nil {
+			log.Error("failed to resolve proxied name",
+				"qtype", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
+			break
+		}
+		log.Info("cooking response",
+			"mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	case suffix == ".r":
 		ips := strings.Split(name, ".")
 		if len(ips) < 2 {
-			log.Error("failed to parse random annotation", "qtype", typeToString(question.Qtype), "name", question.Name)
+			log.Error("failed to parse random annotation",
+				"qtype", typeToString(question.Qtype), "name", question.Name)
 			break
 		}
 
@@ -37,7 +44,8 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 			pIp = ips[len(ips)-1]
 		}
 		ip = parseIp(question.Qtype, pIp)
-		log.Info("cooking response", "mode", "random", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		log.Info("cooking response",
+			"mode", "random", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	case suffix == ".c":
 		msg = &dns.CNAME{
 			Hdr: dns.RR_Header{
@@ -48,24 +56,28 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 			},
 			Target: dns.Fqdn(name),
 		}
-		log.Info("cooking response", "mode", "cname", "qtype", typeToString(question.Qtype), "name", question.Name, "target", name)
+		log.Info("cooking response",
+			"mode", "cname", "qtype", typeToString(question.Qtype), "name", question.Name, "target", name)
 	case suffix == ".4":
 		if question.Qtype == dns.TypeA {
 			ip = parseIp(dns.TypeA, name)
 		} else if !cfg.StrictMode {
 			ip = defaultIp(question.Qtype)
 		}
-		log.Info("cooking response", "mode", "ipv6", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		log.Info("cooking response",
+			"mode", "ipv6", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	case suffix == ".6":
 		if question.Qtype == dns.TypeAAAA {
 			ip = parseIp(dns.TypeAAAA, name)
 		} else if !cfg.StrictMode {
 			ip = defaultIp(question.Qtype)
 		}
-		log.Info("cooking response", "mode", "ipv4", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		log.Info("cooking response",
+			"mode", "ipv4", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	default:
 		ip = defaultIp(question.Qtype)
-		log.Info("cooking response", "mode", "default", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		log.Info("cooking response",
+			"mode", "default", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	}
 
 	return
