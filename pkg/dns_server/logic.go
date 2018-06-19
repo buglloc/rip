@@ -8,6 +8,7 @@ import (
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/pkg/cfg"
+	"github.com/buglloc/rip/pkg/ip_loop"
 )
 
 func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err error) {
@@ -29,6 +30,25 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 		}
 		log.Info("cooking response",
 			"mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+	case suffix == ".l":
+		ips := strings.Split(name, ".")
+		if len(ips) < 2 {
+			log.Error("failed to parse loop annotation",
+				"qtype", typeToString(question.Qtype), "name", question.Name)
+			break
+		}
+
+		ips = ips[len(ips)-2:]
+		var pIp string
+		if question.Qtype == dns.TypeA {
+			// Move next only for ipv4 request
+			pIp = ip_loop.GetNext(name, ips)
+		} else {
+			pIp = ip_loop.GetCurrent(name, ips)
+		}
+		ip = parseIp(question.Qtype, pIp)
+		log.Info("cooking response",
+			"mode", "loop", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	case suffix == ".r":
 		ips := strings.Split(name, ".")
 		if len(ips) < 2 {
