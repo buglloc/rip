@@ -9,6 +9,7 @@ DNS сервер парсит имя, пытается вычленить из �
     <optional-prefix>.<IPv6>.6.<zone>  -> returns AAAA record with <IPv6> address
     <proxy-name>.p.<zone>  -> resolve proxy name and returns it
     <ip>.<ip>.r.<zone>  -> pick random IP
+    <ip1>.<ip2>.l.<zone>  -> loop over <ip1> and <ip2>
     <cname>.c.<zone>  -> return CNAME record with <cname>
     <any-name>.<zone>  -> returns default address
 ```
@@ -36,6 +37,9 @@ $ rip server --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
 
 # Random
     0a000002.0a000001.r.example.com ->  random between 10.0.0.1 and 10.0.0.2
+
+# Loop
+    8ba299a7.8ba299a8.l.example.com ->  loop over 139.162.153.167 and 139.162.153.168
 
 # Cname
     ya.ru.c.example.com ->  canonical name ya.ru
