@@ -13,7 +13,7 @@ import (
 
 var ip2Hex = &cobra.Command{
 	Use:   "ip2hex IP",
-	Short: "Start RIP server",
+	Short: "Convert IPs to base-16 form",
 	RunE:  runIp2Hex,
 }
 
