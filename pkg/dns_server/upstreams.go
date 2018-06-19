@@ -36,20 +36,24 @@ func ResolveIp(reqType uint16, name string) (net.IP, error) {
 		return nil, err
 	}
 
-	rr := res.Answer[0]
 	var ip net.IP
-	ttl := time.Duration(rr.(dns.RR).Header().Ttl) * time.Second
-	switch rr.(type) {
-	case *dns.A:
-		ip = rr.(*dns.A).A
-	case *dns.AAAA:
-		ip = rr.(*dns.AAAA).AAAA
-	case *dns.CNAME:
-		ip, err = ResolveIp(reqType, rr.(*dns.CNAME).Target)
+	for _, rr := range res.Answer {
+		ttl := time.Duration(rr.(dns.RR).Header().Ttl) * time.Second
+		switch rr.(type) {
+		case *dns.A:
+			rip := rr.(*dns.A).A
+			if reqType == dns.TypeA {
+				ip = rip
+			}
+			cache.Set(dns.TypeA, name, ttl, &rip)
+		case *dns.AAAA:
+			rip := rr.(*dns.AAAA).AAAA
+			if reqType == dns.TypeAAAA {
+				ip = rip
+			}
+			cache.Set(dns.TypeAAAA, name, ttl, &rip)
+		}
 	}
 
-	if ip != nil {
-		cache.Set(reqType, name, ttl, &ip)
-	}
 	return ip, nil
 }
