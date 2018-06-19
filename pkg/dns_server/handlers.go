@@ -49,7 +49,7 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 			Name:   question.Name,
 			Rrtype: question.Qtype,
 			Class:  dns.ClassINET,
-			Ttl:    1,
+			Ttl:    0,
 		}
 
 		var line dns.RR
