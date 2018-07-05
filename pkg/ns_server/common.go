@@ -70,3 +70,14 @@ func parseIp(reqType uint16, name string) net.IP {
 func random(min, max int) int {
 	return rand.Intn(max-min) + min
 }
+
+func parseSubName(name string) string {
+	if indx := strings.LastIndex(name, "."); indx != -1 {
+		part := name[indx+1:]
+		if strings.Count(part, "-") > 0 {
+			// We have request like something.example-com.c.example.com
+			return strings.Replace(part, "-", ".", -1)
+		}
+	}
+	return name
+}

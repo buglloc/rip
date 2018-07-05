@@ -22,14 +22,15 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 	name, suffix := name[:i], name[i:]
 	switch {
 	case suffix == ".p" && cfg.AllowProxy:
-		ip, err = ResolveIp(question.Qtype, name)
+		subName := parseSubName(name)
+		ip, err = ResolveIp(question.Qtype, subName)
 		if err != nil {
 			log.Error("failed to resolve proxied name",
-				"qtype", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
+				"qtype", typeToString(question.Qtype), "name", question.Name, "target", subName, "err", err.Error())
 			break
 		}
 		log.Info("cooking response",
-			"mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+			"mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "target", subName, "ip", ip.String())
 	case suffix == ".l":
 		ips := strings.Split(name, ".")
 		if len(ips) < 2 {
@@ -67,6 +68,7 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 		log.Info("cooking response",
 			"mode", "random", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
 	case suffix == ".c":
+		subName := parseSubName(name)
 		msg = &dns.CNAME{
 			Hdr: dns.RR_Header{
 				Name:   question.Name,
@@ -74,10 +76,10 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 				Class:  dns.ClassINET,
 				Ttl:    0,
 			},
-			Target: dns.Fqdn(name),
+			Target: dns.Fqdn(subName),
 		}
 		log.Info("cooking response",
-			"mode", "cname", "qtype", typeToString(question.Qtype), "name", question.Name, "target", name)
+			"mode", "cname", "qtype", typeToString(question.Qtype), "name", question.Name, "target", subName)
 	case suffix == ".4":
 		if question.Qtype == dns.TypeA {
 			ip = parseIp(dns.TypeA, name)
