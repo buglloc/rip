@@ -1,13 +1,13 @@
 package log
 
 import (
-	"os"
-
 	"gopkg.in/inconshreveable/log15.v2"
 )
 
-var logger log15.Logger
-var maxLvl = InfoLevel
+var (
+	logger Logger
+	maxLvl = InfoLevel
+)
 
 const (
 	CritLevel log15.Lvl = iota
@@ -18,10 +18,7 @@ const (
 )
 
 func init() {
-	logger = log15.New()
-	logger.SetHandler(configFilterHandler(
-		log15.StreamHandler(os.Stderr, TextFormat()),
-	))
+	logger = NewLogger()
 }
 
 func configFilterHandler(h log15.Handler) log15.Handler {
@@ -52,4 +49,8 @@ func Error(msg string, ctx ...interface{}) {
 
 func Crit(msg string, ctx ...interface{}) {
 	logger.Crit(msg, ctx...)
+}
+
+func Child(ctx ...interface{}) Logger {
+	return logger.Child(ctx...)
 }

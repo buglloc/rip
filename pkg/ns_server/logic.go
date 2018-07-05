@@ -11,12 +11,13 @@ import (
 	"github.com/buglloc/rip/pkg/ip_loop"
 )
 
-func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err error) {
+func parseName(question dns.Question, zone string, l log.Logger) (msg dns.RR, ip net.IP, err error) {
 	if len(question.Name)-len(zone) <= 3 {
 		ip = defaultIp(question.Qtype)
 		return
 	}
 
+	l = l.Child("qtype", typeToString(question.Qtype), "name", question.Name)
 	name := question.Name[:len(question.Name)-len(zone)-1]
 	i := len(name) - 2
 	name, suffix := name[:i], name[i:]
@@ -25,17 +26,15 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 		subName := parseSubName(name)
 		ip, err = ResolveIp(question.Qtype, subName)
 		if err != nil {
-			log.Error("failed to resolve proxied name",
-				"qtype", typeToString(question.Qtype), "name", question.Name, "target", subName, "err", err.Error())
+			l.Error("failed to resolve proxied name", "target", subName, "err", err.Error())
 			break
 		}
-		log.Info("cooking response",
-			"mode", "proxy", "qtype", typeToString(question.Qtype), "name", question.Name, "target", subName, "ip", ip.String())
+		l.Info("cooking response",
+			"mode", "proxy", "target", subName, "ip", ip.String())
 	case suffix == ".l":
 		ips := strings.Split(name, ".")
 		if len(ips) < 2 {
-			log.Error("failed to parse loop annotation",
-				"qtype", typeToString(question.Qtype), "name", question.Name)
+			log.Error("failed to parse loop annotation")
 			break
 		}
 
@@ -48,13 +47,11 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 			pIp = ip_loop.GetCurrent(name, ips)
 		}
 		ip = parseIp(question.Qtype, pIp)
-		log.Info("cooking response",
-			"mode", "loop", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		l.Info("cooking response", "mode", "loop", "ip", ip.String())
 	case suffix == ".r":
 		ips := strings.Split(name, ".")
 		if len(ips) < 2 {
-			log.Error("failed to parse random annotation",
-				"qtype", typeToString(question.Qtype), "name", question.Name)
+			l.Error("failed to parse random annotation")
 			break
 		}
 
@@ -65,8 +62,7 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 			pIp = ips[len(ips)-1]
 		}
 		ip = parseIp(question.Qtype, pIp)
-		log.Info("cooking response",
-			"mode", "random", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		l.Info("cooking response", "mode", "random", "ip", ip.String())
 	case suffix == ".c":
 		subName := parseSubName(name)
 		msg = &dns.CNAME{
@@ -78,28 +74,27 @@ func parseName(question dns.Question, zone string) (msg dns.RR, ip net.IP, err e
 			},
 			Target: dns.Fqdn(subName),
 		}
-		log.Info("cooking response",
-			"mode", "cname", "qtype", typeToString(question.Qtype), "name", question.Name, "target", subName)
+		l.Info("cooking response", "mode", "cname", "target", subName)
 	case suffix == ".4":
 		if question.Qtype == dns.TypeA {
 			ip = parseIp(dns.TypeA, name)
 		} else if !cfg.StrictMode {
 			ip = defaultIp(question.Qtype)
 		}
-		log.Info("cooking response",
-			"mode", "ipv6", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		l.Info("cooking response",
+			"mode", "ipv6", "ip", ip.String())
 	case suffix == ".6":
 		if question.Qtype == dns.TypeAAAA {
 			ip = parseIp(dns.TypeAAAA, name)
 		} else if !cfg.StrictMode {
 			ip = defaultIp(question.Qtype)
 		}
-		log.Info("cooking response",
-			"mode", "ipv4", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		l.Info("cooking response",
+			"mode", "ipv4", "ip", ip.String())
 	default:
 		ip = defaultIp(question.Qtype)
-		log.Info("cooking response",
-			"mode", "default", "qtype", typeToString(question.Qtype), "name", question.Name, "ip", ip.String())
+		l.Info("cooking response",
+			"mode", "default", "ip", ip.String())
 	}
 
 	return

@@ -5,7 +5,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/buglloc/simplelog",
-			"Rev": "425281ef415b67508c76bbe88e974a7425241cdc"
+			"Rev": "ab9c6eed3b6ac0bd61618a668cf8c03472470b13"
 		},
 		{
 			"ImportPath": "github.com/fsnotify/fsnotify",

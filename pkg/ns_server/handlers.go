@@ -8,22 +8,22 @@ import (
 func NewHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
 	return func(w dns.ResponseWriter, req *dns.Msg) {
 		defer w.Close()
-		msg := handle(zone, req)
+		msg := handle(zone, req, log.Child("client", w.RemoteAddr().String()))
 		if msg != nil {
 			w.WriteMsg(msg)
 		}
 	}
 }
 
-func handle(zone string, req *dns.Msg) *dns.Msg {
+func handle(zone string, req *dns.Msg, l log.Logger) *dns.Msg {
 	response := &dns.Msg{}
 	response.SetReply(req)
 	for _, question := range req.Question {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
-			msg, ip, err := parseName(question, zone)
+			msg, ip, err := parseName(question, zone, l)
 			if err != nil {
-				log.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
+				l.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
 				continue
 			}
 
@@ -58,7 +58,7 @@ func handle(zone string, req *dns.Msg) *dns.Msg {
 			}
 			response.Answer = append(response.Answer, line)
 		default:
-			log.Debug("skip unknown request", "type", typeToString(question.Qtype))
+			l.Debug("skip unknown request", "type", typeToString(question.Qtype))
 			// TODO(buglloc): should we return SERVFAIL?
 			//msg := &dns.Msg{}
 			//msg.SetRcode(req, dns.RcodeServerFailure)
