@@ -54,8 +54,8 @@ $ rip ns --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
     google.com.c.example.com ->  canonical name google.com
 
 # Proxy
-    ya.ru.p.example.com ->  87.250.250.242 && 2a02:6b8::2:242
-    google.com.exampl.ecom  ->  64.233.164.102 and 2a00:1450:4010:c07::64
+    ya.ru.p.example.com ->  87.250.250.242 and 2a02:6b8::2:242
+    google.com.p.example.com  ->  64.233.164.102 and 2a00:1450:4010:c07::64
 ```
 
 # IP-конвертер
