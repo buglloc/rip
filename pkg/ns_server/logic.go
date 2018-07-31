@@ -88,7 +88,7 @@ func parseName(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, 
 		var ip net.IP
 		if question.Qtype == dns.TypeA {
 			ip = parseIp(dns.TypeA, name)
-		} else if !cfg.StrictMode {
+		} else if cfg.UseDefault {
 			ip = defaultIp(question.Qtype)
 		}
 
@@ -101,7 +101,7 @@ func parseName(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, 
 		var ip net.IP
 		if question.Qtype == dns.TypeAAAA {
 			ip = parseIp(dns.TypeAAAA, name)
-		} else if !cfg.StrictMode {
+		} else if cfg.UseDefault {
 			ip = defaultIp(question.Qtype)
 		}
 
@@ -110,16 +110,17 @@ func parseName(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, 
 			l.Info("cooking response",
 				"mode", "ipv6", "ip", ip.String())
 		}
-	case suffix == "m4":
+	case suffix == "m":
 		ips := strings.Split(name, ".")
 		parsedIps := make([]net.IP, 0, len(ips))
-		rrs = make([]dns.RR, 0, len(ips))
-		for _, rIp := range ips {
+		rrs = make([]dns.RR, 0)
+
+		for i := 0; i < len(ips)-1; i++ {
 			var ip net.IP
-			if question.Qtype == dns.TypeA {
-				ip = parseIp(dns.TypeA, rIp)
-			} else if !cfg.StrictMode {
-				ip = defaultIp(question.Qtype)
+			if question.Qtype == dns.TypeAAAA && ips[i+1] == "6" {
+				ip = parseIp(dns.TypeAAAA, ips[i])
+			} else if question.Qtype == dns.TypeA && ips[i+1] == "4" {
+				ip = parseIp(dns.TypeA, ips[i])
 			}
 
 			if ip != nil {
@@ -127,30 +128,10 @@ func parseName(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, 
 				parsedIps = append(parsedIps, ip)
 			}
 		}
-		if len(parsedIps) > 0 {
-			l.Info("cooking response",
-				"mode", "ipv4", "ip", parsedIps)
-		}
-	case suffix == "m6":
-		ips := strings.Split(name, ".")
-		parsedIps := make([]net.IP, 0, len(ips))
-		rrs = make([]dns.RR, 0, len(ips))
-		for _, rIp := range ips {
-			var ip net.IP
-			if question.Qtype == dns.TypeAAAA {
-				ip = parseIp(dns.TypeAAAA, rIp)
-			} else if !cfg.StrictMode {
-				ip = defaultIp(question.Qtype)
-			}
 
-			if ip != nil {
-				rrs = append(rrs, createIpMsg(question, ip))
-				parsedIps = append(parsedIps, ip)
-			}
-		}
 		if len(parsedIps) > 0 {
 			l.Info("cooking response",
-				"mode", "ipv4", "ip", parsedIps)
+				"mode", "multi", "ip", parsedIps)
 		}
 	default:
 		ip := defaultIp(question.Qtype)
