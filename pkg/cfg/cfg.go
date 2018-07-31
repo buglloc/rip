@@ -2,6 +2,11 @@ package cfg
 
 import "net"
 
+const (
+	// RIP version
+	Version = "0.1.0"
+)
+
 var (
 	// Address to listen on, ":dns" if empty.
 	Addr string
