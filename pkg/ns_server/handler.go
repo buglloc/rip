@@ -1,6 +1,7 @@
 package ns_server
 
 import (
+	"github.com/buglloc/rip/pkg/handlers"
 	"github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 )
@@ -15,13 +16,15 @@ func NewHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
 	}
 }
 
-func handle(zone string, req *dns.Msg, l log.Logger) *dns.Msg {
+func handle(zone string, req *dns.Msg, logger log.Logger) *dns.Msg {
 	response := &dns.Msg{}
 	response.SetReply(req)
 	for _, question := range req.Question {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
-			answers, err := parseName(question, zone, l)
+			l := logger.Child("qtype", typeToString(question.Qtype), "name", question.Name)
+
+			answers, err := handlers.Handle(question, zone, l)
 			if err != nil {
 				l.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
 				continue
@@ -30,9 +33,10 @@ func handle(zone string, req *dns.Msg, l log.Logger) *dns.Msg {
 			if len(answers) == 0 {
 				continue
 			}
+
 			response.Answer = append(response.Answer, answers...)
 		default:
-			l.Debug("skip unknown request", "type", typeToString(question.Qtype))
+			logger.Debug("skip unknown request", "type", typeToString(question.Qtype))
 			// TODO(buglloc): should we return SERVFAIL?
 			//msg := &dns.Msg{}
 			//msg.SetRcode(req, dns.RcodeServerFailure)
@@ -40,4 +44,11 @@ func handle(zone string, req *dns.Msg, l log.Logger) *dns.Msg {
 	}
 
 	return response
+}
+
+func typeToString(reqType uint16) string {
+	if t, ok := dns.TypeToString[reqType]; ok {
+		return t
+	}
+	return "unknown"
 }

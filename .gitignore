@@ -16,3 +16,4 @@
 .bin
 # our binary
 rip
+.gopath

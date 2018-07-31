@@ -1,4 +1,4 @@
-package ns_server
+package handlers
 
 import (
 	"math/rand"
@@ -14,13 +14,6 @@ import (
 
 func init() {
 	rand.Seed(time.Now().Unix())
-}
-
-func typeToString(reqType uint16) string {
-	if t, ok := dns.TypeToString[reqType]; ok {
-		return t
-	}
-	return "unknown"
 }
 
 func defaultIp(reqType uint16) net.IP {
@@ -80,4 +73,35 @@ func parseSubName(name string) string {
 		}
 	}
 	return name
+}
+
+func createIpRR(question dns.Question, ip net.IP) (rr dns.RR) {
+	head := dns.RR_Header{
+		Name:   question.Name,
+		Rrtype: question.Qtype,
+		Class:  dns.ClassINET,
+		Ttl:    0,
+	}
+
+	if question.Qtype == dns.TypeA {
+		rr = &dns.A{
+			Hdr: head,
+			A:   ip,
+		}
+	} else {
+		rr = &dns.AAAA{
+			Hdr:  head,
+			AAAA: ip,
+		}
+	}
+	return
+}
+
+func createIpsRR(question dns.Question, ips ...net.IP) (result []dns.RR) {
+	result = make([]dns.RR, len(ips))
+	for i, ip := range ips {
+		result[i] = createIpRR(question, ip)
+	}
+
+	return
 }

@@ -1,4 +1,4 @@
-package ns_server
+package resolver
 
 import (
 	"net"
