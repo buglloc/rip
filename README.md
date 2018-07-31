@@ -17,7 +17,7 @@ DNS сервер парсит имя, пытается вычленить из �
     <ip1>.<ip2>.l.<zone>  -> loop over <ip1> and <ip2>
     <cname>.c.<zone>  -> return CNAME record with <cname>
     <any-name>.<zone>  -> returns default address
-    [[<IPv4>.4|<IPv6>.6]...].m.<zone>  -> returns multiple address according to order and type
+    [(<IPv4>.4|<IPv6>.6)...(<IPv4>.4|<IPv6>.6)].m.<zone>  -> returns multiple address according to order and type
 ```
 
 # Формат IP
