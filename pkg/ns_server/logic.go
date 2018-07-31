@@ -22,10 +22,14 @@ func parseName(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, 
 		return
 	}
 
+	var name, suffix string
 	l = l.Child("qtype", typeToString(question.Qtype), "name", question.Name)
-	name := question.Name[:len(question.Name)-len(zone)-1]
+	name = question.Name[:len(question.Name)-len(zone)-1]
 	i := strings.LastIndex(name, ".")
-	name, suffix := name[:i], name[i+1:]
+	if i > 0 && i < len(name) {
+		name, suffix = name[:i], name[i+1:]
+	}
+
 	switch {
 	case suffix == "p" && cfg.AllowProxy:
 		subName := parseSubName(name)
