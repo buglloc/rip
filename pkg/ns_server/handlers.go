@@ -21,42 +21,16 @@ func handle(zone string, req *dns.Msg, l log.Logger) *dns.Msg {
 	for _, question := range req.Question {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
-			msg, ip, err := parseName(question, zone, l)
+			answers, err := parseName(question, zone, l)
 			if err != nil {
 				l.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
 				continue
 			}
 
-			if msg != nil {
-				// parser craft own response
-				response.Answer = append(response.Answer, msg)
+			if len(answers) == 0 {
 				continue
 			}
-
-			if ip == nil {
-				continue
-			}
-
-			head := dns.RR_Header{
-				Name:   question.Name,
-				Rrtype: question.Qtype,
-				Class:  dns.ClassINET,
-				Ttl:    0,
-			}
-
-			var line dns.RR
-			if question.Qtype == dns.TypeA {
-				line = &dns.A{
-					Hdr: head,
-					A:   ip,
-				}
-			} else {
-				line = &dns.AAAA{
-					Hdr:  head,
-					AAAA: ip,
-				}
-			}
-			response.Answer = append(response.Answer, line)
+			response.Answer = append(response.Answer, answers...)
 		default:
 			l.Debug("skip unknown request", "type", typeToString(question.Qtype))
 			// TODO(buglloc): should we return SERVFAIL?
