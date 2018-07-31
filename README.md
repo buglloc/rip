@@ -12,6 +12,7 @@ DNS сервер парсит имя, пытается вычленить из �
     <ip1>.<ip2>.l.<zone>  -> loop over <ip1> and <ip2>
     <cname>.c.<zone>  -> return CNAME record with <cname>
     <any-name>.<zone>  -> returns default address
+    [[<IPv4>.4|<IPv6>.6]...].m.<zone>  -> returns multiple address according to order and type
 ```
 
 # Формат IP
@@ -56,6 +57,9 @@ $ rip ns --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
 # Proxy
     ya.ru.p.example.com ->  87.250.250.242 and 2a02:6b8::2:242
     google.com.p.example.com  ->  64.233.164.102 and 2a00:1450:4010:c07::64
+
+# Multi
+    1-1-1-1.4.8ba299a7.4.2a017e0100000000f03c91fffe3bc9ba.6.m.example.com   ->  1.1.1.1, 139.162.153.167, 2a01:7e01::f03c:91ff:fe3b:c9ba
 ```
 
 # IP-конвертер
