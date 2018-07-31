@@ -32,5 +32,5 @@ for os in $OSES; do
       OUTPUT=".bin/${os}/rip"
   fi
   mkdir -p ".bin/${os}"
-  GOOS="${os}" GOARCH=amd64 go build -o "${OUTPUT}" main.go
+  CGO_ENABLED=0 GOOS="${os}" GOARCH=amd64 go build -o "${OUTPUT}" main.go
 done
