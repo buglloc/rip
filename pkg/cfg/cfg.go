@@ -14,6 +14,6 @@ var (
 	// upstream DNS server for proxying
 	Upstream = "1.1.1.1:53"
 	// Enable "strict" mode
-	StrictMode bool
+	UseDefault bool
 	AllowProxy bool
 )
