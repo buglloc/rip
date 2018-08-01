@@ -4,7 +4,7 @@
 [![GitHub issues](https://img.shields.io/github/issues/buglloc/rip.svg?style=flat-square)](https://github.com/buglloc/rip/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/buglloc/rip.svg?style=flat-square)](https://github.com/buglloc/rip/pulls)
 
-A simple DNS server with the ability to encode an IP address in the name. DNS server extracts the IP address (or cname) from the domain name and sends it back in the response.
+A simple DNS server that extracts the IP address (or cname) from the domain name and sends it back in the response.
 
 # Encoding rules
 DNS server parses requested name to extract the requested mode, IP or CNAME by the following rules:
