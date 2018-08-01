@@ -1,9 +1,4 @@
 # RIP
-[![MIT License](https://img.shields.io/github/license/buglloc/rip.svg?style=flat-square)](https://github.com/buglloc/rip/blob/master/LICENSE)
-[![Your feedback is greatly appreciated](https://img.shields.io/maintenance/yes/2018.svg?style=flat-square)](https://github.com/buglloc/rip/issues/new)
-[![GitHub issues](https://img.shields.io/github/issues/buglloc/rip.svg?style=flat-square)](https://github.com/buglloc/rip/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/buglloc/rip.svg?style=flat-square)](https://github.com/buglloc/rip/pulls)
-
 A simple DNS server that extracts the IP address (or cname) from the domain name and sends it back in the response.
 
 # Encoding rules
