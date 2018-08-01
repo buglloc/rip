@@ -1,5 +1,5 @@
 # RIP
-A simple DNS server that extracts the IP address (or cname) from the domain name and sends it back in the response.
+A simple DNS server that extracts IP address (or cname) from the requested domain name and sends it back in the response.
 
 # Encoding rules
 DNS server parses requested name to extract the requested mode, IP or CNAME by the following rules:
