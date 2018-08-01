@@ -15,8 +15,7 @@ DNS server parses requested name to extract the requested mode, IP or CNAME by t
 ```
 
 # IP address format
-IP address can be presented in two versions - dash-delimited and base16-form.
-For example, these entries `0a000001` and `10-0-0-1` are equivalent and point to `10.0.0.1`
+IP address can be presented in two variants - dash-delimited and base16-form. For example, ips `0a000001` and `10-0-0-1` are equal and points to `10.0.0.1`
 You can also use the built-in converter to encode IP address:
 ```
 $ rip ip2hex fe80::fa94:c2ff:fee5:3cf6 127.0.0.1
@@ -25,8 +24,8 @@ fe80000000000000fa94c2fffee53cf6	7f000001
 
 
 # Cname/ProxyName format
-`cname` and `proxy ' modes support two name resolution logic - prefixed and dash-delimited:
-For eg:
+`cname` and `proxy` modes support two name resolution logic - prefixed and dash-delimited:
+Eg:
 ```
     something.victim.com.c.evil.com -> CNAME to something.victim.com
     something.victim-com.c.evil.com -> CNAME to victim.com
