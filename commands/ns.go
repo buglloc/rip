@@ -27,6 +27,8 @@ func init() {
 		"your zone name (e.g. 'buglloc.com')")
 	flags.String("ipv4", "127.0.0.1",
 		"default ipv4 address")
+	flags.Uint32("ttl", cfg.TTL,
+		"DNS records TTL")
 	flags.String("ipv6", "::1",
 		"default ipv6 address")
 	flags.String("upstream", "77.88.8.8:53",
@@ -58,5 +60,6 @@ func parseServerConfig(cmd *cobra.Command, args []string) error {
 	cfg.AllowProxy = !viper.GetBool("NoProxy")
 	cfg.UseDefault = viper.GetBool("UseDefault")
 	cfg.Upstream = viper.GetString("Upstream")
+	cfg.TTL = uint32(viper.GetInt("Ttl"))
 	return nil
 }

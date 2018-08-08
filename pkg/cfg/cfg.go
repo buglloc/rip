@@ -21,4 +21,5 @@ var (
 	// Enable "strict" mode
 	UseDefault bool
 	AllowProxy bool
+	TTL        uint32 = 0
 )

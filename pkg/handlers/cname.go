@@ -3,6 +3,8 @@ package handlers
 import (
 	"github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
+
+	"github.com/buglloc/rip/pkg/cfg"
 )
 
 func CnameHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
@@ -12,7 +14,7 @@ func CnameHandler(question dns.Question, name string, l log.Logger) (rrs []dns.R
 			Name:   question.Name,
 			Rrtype: dns.TypeCNAME,
 			Class:  dns.ClassINET,
-			Ttl:    0,
+			Ttl:    cfg.TTL,
 		},
 		Target: dns.Fqdn(subName),
 	}}

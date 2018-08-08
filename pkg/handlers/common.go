@@ -80,7 +80,7 @@ func createIpRR(question dns.Question, ip net.IP) (rr dns.RR) {
 		Name:   question.Name,
 		Rrtype: question.Qtype,
 		Class:  dns.ClassINET,
-		Ttl:    0,
+		Ttl:    cfg.TTL,
 	}
 
 	if question.Qtype == dns.TypeA {
