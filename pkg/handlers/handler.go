@@ -15,6 +15,7 @@ var handlers = map[string]Handler{
 	"c": CnameHandler,
 	"p": ProxyHandler,
 	"l": LoopHandler,
+	"s": StickyHandler,
 	"r": RandomHandler,
 	"4": Ipv4Handler,
 	"6": Ipv6Handler,

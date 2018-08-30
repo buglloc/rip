@@ -9,6 +9,7 @@ DNS server parses requested name to extract the requested mode, IP or CNAME by t
     <proxy-name>.p.<zone>  -> resolve proxy name and returns it
     <ip1>.<ip2>.r.<zone>  -> pick random <ip1> or <ip2>
     <ip1>.<ip2>.l.<zone>  -> loop over <ip1> and <ip2>
+    <ip1>.<ip2>.s.<zone>  -> "sticky" - <ip1> for first request, then <ip2> in sticky TTL (30 sec by default)
     <cname>.c.<zone>  -> return CNAME record with <cname>
     <any-name>.<zone>  -> returns default address
     [(<IPv4>.4|<IPv6>.6)...(<IPv4>.4|<IPv6>.6)].m.<zone>  -> returns multiple address according to order and type
@@ -54,6 +55,9 @@ When requesting it, we should get the following responses:
 
 # Loop
     8ba299a7.8ba299a8.l.example.com ->  loop over 139.162.153.167 and 139.162.153.168
+
+# Sticky
+    8ba299a7.8ba299a8.s.example.com ->  139.162.153.167 then 139.162.153.168, then 139.162.153.168 and so on
 
 # Cname
     ya.ru.c.example.com ->  canonical name ya.ru

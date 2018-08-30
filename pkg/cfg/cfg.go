@@ -1,6 +1,9 @@
 package cfg
 
-import "net"
+import (
+	"net"
+	"time"
+)
 
 const (
 	// RIP version
@@ -21,5 +24,6 @@ var (
 	// Enable "strict" mode
 	UseDefault bool
 	AllowProxy bool
-	TTL        uint32 = 0
+	TTL        uint32        = 0
+	StickyTTL  time.Duration = 30
 )

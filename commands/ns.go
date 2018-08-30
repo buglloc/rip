@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"net"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -29,6 +30,8 @@ func init() {
 		"default ipv4 address")
 	flags.Uint32("ttl", cfg.TTL,
 		"DNS records TTL")
+	flags.Uint32("sticky-ttl", 30,
+		"sticky record TTL in seconds")
 	flags.String("ipv6", "::1",
 		"default ipv6 address")
 	flags.String("upstream", "77.88.8.8:53",
@@ -61,5 +64,6 @@ func parseServerConfig(cmd *cobra.Command, args []string) error {
 	cfg.UseDefault = viper.GetBool("UseDefault")
 	cfg.Upstream = viper.GetString("Upstream")
 	cfg.TTL = uint32(viper.GetInt("Ttl"))
+	cfg.StickyTTL = time.Duration(viper.GetInt("StickyTtl")) * time.Second
 	return nil
 }
