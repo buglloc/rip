@@ -1,4 +1,4 @@
-package ip_loop
+package loop
 
 import (
 	"time"

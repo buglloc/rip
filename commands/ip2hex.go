@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/buglloc/rip/pkg/ip_utils"
+	"github.com/buglloc/rip/pkg/iputil"
 )
 
 var ip2Hex = &cobra.Command{
@@ -29,9 +29,9 @@ func runIp2HexCmd(cmd *cobra.Command, args []string) error {
 	results := make([]string, len(args))
 	for i, ip := range args {
 		if strings.Contains(ip, ":") {
-			results[i] = ip_utils.Ip6ToHex(net.ParseIP(ip))
+			results[i] = iputil.Ip6ToHex(net.ParseIP(ip))
 		} else {
-			results[i] = ip_utils.Ip4ToHex(net.ParseIP(ip))
+			results[i] = iputil.Ip4ToHex(net.ParseIP(ip))
 		}
 	}
 

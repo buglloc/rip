@@ -9,7 +9,7 @@ import (
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/pkg/cfg"
-	"github.com/buglloc/rip/pkg/ip_utils"
+	"github.com/buglloc/rip/pkg/iputil"
 )
 
 func init() {
@@ -34,7 +34,7 @@ func parseIp(reqType uint16, name string) net.IP {
 	case dns.TypeA:
 		if dotCounts == 0 {
 			// base-16 form
-			ip := ip_utils.HexToIp(name)
+			ip := iputil.HexToIp(name)
 			if len(ip) != net.IPv4len {
 				return nil
 			}
@@ -46,7 +46,7 @@ func parseIp(reqType uint16, name string) net.IP {
 	case dns.TypeAAAA:
 		if dotCounts == 0 {
 			// base-16 form
-			ip := ip_utils.HexToIp(name)
+			ip := iputil.HexToIp(name)
 			if len(ip) != net.IPv6len {
 				return nil
 			}

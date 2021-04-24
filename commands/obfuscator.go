@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	ip_obfuscator "github.com/buglloc/rip/pkg/ip_obfustacor"
+	obfuscator "github.com/buglloc/rip/pkg/obfustacor"
 )
 
 var uglify = &cobra.Command{
@@ -24,7 +24,7 @@ func runUglifyCmd(cmd *cobra.Command, args []string) error {
 		return errors.New("please provide IP")
 	}
 
-	obfuscated := ip_obfuscator.IPv4(args[0])
+	obfuscated := obfuscator.IPv4(args[0])
 	for _, r := range obfuscated {
 		fmt.Printf("http://%s\n", r)
 	}

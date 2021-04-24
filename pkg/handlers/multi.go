@@ -8,7 +8,9 @@ import (
 	"github.com/miekg/dns"
 )
 
-func MultiHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = MultiHandler
+
+func MultiHandler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	ips := strings.Split(name, ".")
 	parsedIps := make([]net.IP, 0, len(ips))
 	for i := 0; i < len(ips)-1; i++ {

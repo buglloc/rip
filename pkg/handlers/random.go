@@ -7,7 +7,9 @@ import (
 	"github.com/miekg/dns"
 )
 
-func RandomHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = RandomHandler
+
+func RandomHandler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	ips := strings.Split(name, ".")
 	if len(ips) < 2 {
 		l.Error("failed to parse random annotation")

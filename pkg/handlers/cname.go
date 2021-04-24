@@ -7,7 +7,9 @@ import (
 	"github.com/buglloc/rip/pkg/cfg"
 )
 
-func CnameHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = CnameHandler
+
+func CnameHandler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	subName := parseSubName(name)
 	rrs = []dns.RR{&dns.CNAME{
 		Hdr: dns.RR_Header{

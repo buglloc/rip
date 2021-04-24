@@ -8,7 +8,9 @@ import (
 	"github.com/buglloc/rip/pkg/resolver"
 )
 
-func ProxyHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = ProxyHandler
+
+func ProxyHandler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	if !cfg.AllowProxy {
 		return
 	}

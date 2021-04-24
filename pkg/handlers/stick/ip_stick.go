@@ -1,4 +1,4 @@
-package ip_stick
+package stick
 
 import (
 	"github.com/karlseguin/ccache"
