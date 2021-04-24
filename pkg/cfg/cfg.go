@@ -5,10 +5,7 @@ import (
 	"time"
 )
 
-const (
-	// RIP version
-	Version = "0.1.1"
-)
+const Version = "0.1.2"
 
 var (
 	// Addr is address to listen on, ":dns" if empty.
