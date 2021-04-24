@@ -9,7 +9,7 @@ import (
 	"github.com/buglloc/rip/pkg/cfg"
 )
 
-type Handler func(question dns.Question, zone string, l log.Logger) (rrs []dns.RR)
+type Handler func(question dns.Question, zone string, l *log.Logger) (rrs []dns.RR)
 
 var handlers = map[string]Handler{
 	"c": CnameHandler,
@@ -22,7 +22,7 @@ var handlers = map[string]Handler{
 	"m": MultiHandler,
 }
 
-func Handle(question dns.Question, zone string, l log.Logger) (rrs []dns.RR, err error) {
+func Handle(question dns.Question, zone string, l *log.Logger) (rrs []dns.RR, err error) {
 	if len(question.Name)-len(zone) <= 3 {
 		// Fast exit
 		rrs = DefaultHandler(question, question.Name, l)

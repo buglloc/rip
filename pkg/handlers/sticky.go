@@ -6,10 +6,12 @@ import (
 	log "github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 
-	"github.com/buglloc/rip/pkg/ip_stick"
+	"github.com/buglloc/rip/pkg/handlers/stick"
 )
 
-func StickyHandler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = StickyHandler
+
+func StickyHandler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	ips := strings.Split(name, ".")
 	if len(ips) < 2 {
 		log.Error("failed to parse loop annotation")
@@ -24,7 +26,7 @@ func StickyHandler(question dns.Question, name string, l log.Logger) (rrs []dns.
 	}
 
 	ips = ips[len(ips)-2:]
-	targetIp := ip_stick.GetCurrent(key, ips)
+	targetIp := stick.GetCurrent(key, ips)
 	ip := parseIp(question.Qtype, targetIp)
 	if ip == nil {
 		return

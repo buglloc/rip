@@ -1,4 +1,4 @@
-package ip_utils
+package iputil
 
 import (
 	"math/big"

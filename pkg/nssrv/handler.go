@@ -25,8 +25,7 @@ func handle(zone string, req *dns.Msg, logger *log.Logger) *dns.Msg {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
 			l := logger.Child("qtype", typeToString(question.Qtype), "name", question.Name)
-
-			answers, err := handlers.Handle(question, zone, l)
+			answers, err := handlers.Handle(question, zone, &l)
 			if err != nil {
 				l.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
 				continue

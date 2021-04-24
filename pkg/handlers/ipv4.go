@@ -5,7 +5,9 @@ import (
 	"github.com/miekg/dns"
 )
 
-func Ipv4Handler(question dns.Question, name string, l log.Logger) (rrs []dns.RR) {
+var _ Handler = Ipv4Handler
+
+func Ipv4Handler(question dns.Question, name string, l *log.Logger) (rrs []dns.RR) {
 	if question.Qtype != dns.TypeA {
 		return
 	}

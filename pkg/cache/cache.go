@@ -1,4 +1,4 @@
-package dns_cache
+package cache
 
 import (
 	"net"

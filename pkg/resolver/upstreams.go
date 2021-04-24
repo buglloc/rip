@@ -6,17 +6,17 @@ import (
 
 	"github.com/miekg/dns"
 
+	"github.com/buglloc/rip/pkg/cache"
 	"github.com/buglloc/rip/pkg/cfg"
-	"github.com/buglloc/rip/pkg/dns_cache"
 )
 
 var (
 	dnsClient *dns.Client
-	cache     *dns_cache.Cache
+	dnsCache  *cache.Cache
 )
 
 func init() {
-	cache = dns_cache.NewCache()
+	dnsCache = cache.NewCache()
 	dnsClient = &dns.Client{
 		Net:          "tcp",
 		ReadTimeout:  time.Second * 1,
@@ -25,7 +25,7 @@ func init() {
 }
 
 func ResolveIp(reqType uint16, name string) (net.IP, error) {
-	if ip := cache.Get(reqType, name); ip != nil {
+	if ip := dnsCache.Get(reqType, name); ip != nil {
 		return *ip, nil
 	}
 
@@ -45,13 +45,13 @@ func ResolveIp(reqType uint16, name string) (net.IP, error) {
 			if reqType == dns.TypeA {
 				ip = rip
 			}
-			cache.Set(dns.TypeA, name, ttl, &rip)
+			dnsCache.Set(dns.TypeA, name, ttl, &rip)
 		case *dns.AAAA:
 			rip := rr.(*dns.AAAA).AAAA
 			if reqType == dns.TypeAAAA {
 				ip = rip
 			}
-			cache.Set(dns.TypeAAAA, name, ttl, &rip)
+			dnsCache.Set(dns.TypeAAAA, name, ttl, &rip)
 		}
 	}
 
