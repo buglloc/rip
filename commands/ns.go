@@ -1,16 +1,21 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
+	log "github.com/buglloc/simplelog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/buglloc/rip/pkg/cfg"
 	"github.com/buglloc/rip/pkg/cli"
-	"github.com/buglloc/rip/pkg/ns_server"
+	"github.com/buglloc/rip/pkg/nssrv"
 )
 
 var nsServerCmd = &cobra.Command{
@@ -41,17 +46,40 @@ func init() {
 	flags.Bool("no-proxy", false,
 		"disable proxy mode")
 
-	cli.BindPFlags(flags)
+	_ = cli.BindPFlags(flags)
 	RootCmd.AddCommand(nsServerCmd)
 }
 
-func runServerCmd(cmd *cobra.Command, args []string) error {
-	ns_server.RunBackground()
-	cli.ListenInterrupt()
+func runServerCmd(_ *cobra.Command, _ []string) error {
+	srv := nssrv.NewSrv()
+
+	doneChan := make(chan error)
+	go func() {
+		defer close(doneChan)
+
+		err := srv.ListenAndServe()
+		if err != nil {
+			doneChan <- err
+		}
+	}()
+
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case <-stopChan:
+		log.Info("shutting down...")
+
+		if err := srv.Shutdown(context.TODO()); err != nil {
+			log.Error("shutdown failed", "err", err)
+		}
+	case err := <-doneChan:
+		return err
+	}
+
 	return nil
 }
 
-func parseServerConfig(cmd *cobra.Command, args []string) error {
+func parseServerConfig(_ *cobra.Command, _ []string) error {
 	cfg.Zones = viper.GetStringSlice("Zone")
 	if len(cfg.Zones) == 0 {
 		return errors.New("empty zone list, please provide at leas one")

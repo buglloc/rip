@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"net"
 
-	"github.com/buglloc/simplelog"
+	log "github.com/buglloc/simplelog"
 )
 
 const hexDigit = "0123456789abcdef"

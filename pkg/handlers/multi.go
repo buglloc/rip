@@ -4,7 +4,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/buglloc/simplelog"
+	log "github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 )
 

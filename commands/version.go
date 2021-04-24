@@ -18,7 +18,7 @@ func init() {
 	RootCmd.AddCommand(version)
 }
 
-func versionCmd(cmd *cobra.Command, args []string) error {
+func versionCmd(cmd *cobra.Command, _ []string) error {
 	fmt.Printf("RIP v%s\n", cfg.Version)
 	return nil
 }

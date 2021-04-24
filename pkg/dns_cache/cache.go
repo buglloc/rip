@@ -1,11 +1,11 @@
 package dns_cache
 
 import (
+	"net"
 	"strconv"
 	"time"
 
 	"github.com/karlseguin/ccache"
-	"net"
 )
 
 type Cache struct {
