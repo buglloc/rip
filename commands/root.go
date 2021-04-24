@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/buglloc/simplelog"
+	log "github.com/buglloc/simplelog"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,7 +30,7 @@ func init() {
 		"verbose output")
 
 	viper.AutomaticEnv()
-	cli.BindPFlags(flags)
+	_ = cli.BindPFlags(flags)
 }
 
 func Execute() {

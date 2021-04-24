@@ -3,7 +3,7 @@ package handlers
 import (
 	"strings"
 
-	"github.com/buglloc/simplelog"
+	log "github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/pkg/cfg"

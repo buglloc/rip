@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/buglloc/simplelog"
+	log "github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 )
 

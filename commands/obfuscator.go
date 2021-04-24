@@ -6,7 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/buglloc/rip/pkg/ip_obfustacor"
+	ip_obfuscator "github.com/buglloc/rip/pkg/ip_obfustacor"
 )
 
 var uglify = &cobra.Command{
