@@ -17,6 +17,7 @@ import (
 	"github.com/buglloc/rip/v2/pkg/handlers/loop"
 	"github.com/buglloc/rip/v2/pkg/handlers/parser"
 	"github.com/buglloc/rip/v2/pkg/handlers/proxy"
+	"github.com/buglloc/rip/v2/pkg/handlers/sticky"
 )
 
 func init() {
@@ -114,24 +115,21 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
-			in: "1-1-1-1.4.2-2-2-2.4.3-3-3-3.4.l",
+			in: "2-2-2-2.4.3-3-3-3.4.l",
 			handlers: []handlers.Handler{
 				&loop.Handler{
-					Len: 3,
-					Nested: []handlers.Handler{
+					Nested: [2]handlers.Handler{
 						&ipv4.Handler{IP: net.ParseIP("3.3.3.3").To4()},
 						&ipv4.Handler{IP: net.ParseIP("2.2.2.2").To4()},
-						&ipv4.Handler{IP: net.ParseIP("1.1.1.1").To4()},
 					},
 				},
 			},
 		},
 		{
-			in: "1-1-1-1.4-ttl-10s.2-2-2-2.4-cnt-1.3-3-3-3.4-cnt-2.l",
+			in: "1-1-1-1.4-ttl-10s.2-2-2-2.4.loop-cnt-1.3-3-3-3.4-cnt-2.l",
 			handlers: []handlers.Handler{
 				&loop.Handler{
-					Len: 3,
-					Nested: []handlers.Handler{
+					Nested: [2]handlers.Handler{
 						&ipv4.Handler{
 							IP: net.ParseIP("3.3.3.3").To4(),
 							BaseHandler: handlers.BaseHandler{
@@ -142,8 +140,22 @@ func TestParser(t *testing.T) {
 								},
 							},
 						},
-						&ipv4.Handler{
-							IP: net.ParseIP("2.2.2.2").To4(),
+						&loop.Handler{
+							Nested: [2]handlers.Handler{
+								&ipv4.Handler{
+									IP: net.ParseIP("2.2.2.2").To4(),
+								},
+								&ipv4.Handler{
+									IP: net.ParseIP("1.1.1.1").To4(),
+									BaseHandler: handlers.BaseHandler{
+										Limiters: limiter.Limiters{
+											&limiter.TTL{
+												TTL: 10 * time.Second,
+											},
+										},
+									},
+								},
+							},
 							BaseHandler: handlers.BaseHandler{
 								Limiters: limiter.Limiters{
 									&limiter.Count{
@@ -152,8 +164,20 @@ func TestParser(t *testing.T) {
 								},
 							},
 						},
+					},
+				},
+			},
+		},
+		{
+			in: "2-2-2-2.4-ttl-10s.3-3-3-3.s",
+			handlers: []handlers.Handler{
+				&sticky.Handler{
+					Nested: [2]handlers.Handler{
 						&ipv4.Handler{
-							IP: net.ParseIP("1.1.1.1").To4(),
+							IP: net.ParseIP("3.3.3.3").To4(),
+						},
+						&ipv4.Handler{
+							IP: net.ParseIP("2.2.2.2").To4(),
 							BaseHandler: handlers.BaseHandler{
 								Limiters: limiter.Limiters{
 									&limiter.TTL{
@@ -167,11 +191,10 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
-			in: "1-1-1-1.4-ttl-10s.2-2-2-2.3-3-3-3.s",
+			in: "2-2-2-2.v4.3-3-3-3.v4.s",
 			handlers: []handlers.Handler{
-				&loop.Handler{
-					Len: 3,
-					Nested: []handlers.Handler{
+				&sticky.Handler{
+					Nested: [2]handlers.Handler{
 						&ipv4.Handler{
 							IP: net.ParseIP("3.3.3.3").To4(),
 						},
@@ -181,16 +204,6 @@ func TestParser(t *testing.T) {
 								Limiters: limiter.Limiters{
 									&limiter.TTL{
 										TTL: cfg.StickyTTL,
-									},
-								},
-							},
-						},
-						&ipv4.Handler{
-							IP: net.ParseIP("1.1.1.1").To4(),
-							BaseHandler: handlers.BaseHandler{
-								Limiters: limiter.Limiters{
-									&limiter.TTL{
-										TTL: 10 * time.Second,
 									},
 								},
 							},

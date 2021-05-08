@@ -33,7 +33,6 @@ func (c *Cache) Set(reqType uint16, domain string, ttl time.Duration, ip []net.I
 	}
 
 	c.lruCache.Set(key, ip, ttl)
-	return
 }
 
 func makeKey(reqType uint16, domain string) string {
