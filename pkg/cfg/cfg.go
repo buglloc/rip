@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const Version = "0.1.2"
+const Version = "2.0.0"
 
 var (
 	// Addr is address to listen on, ":dns" if empty.
@@ -21,6 +21,8 @@ var (
 	// UseDefault enables "strict" mode
 	UseDefault bool
 	AllowProxy bool
+	CacheSize  int64         = 4096
+	CacheTTL                 = 10 * time.Minute
 	TTL        uint32        = 0
 	StickyTTL  time.Duration = 30
 )

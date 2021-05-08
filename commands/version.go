@@ -5,20 +5,18 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/buglloc/rip/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/cfg"
 )
 
 var version = &cobra.Command{
 	Use:   "version",
 	Short: "Print rip version",
-	RunE:  versionCmd,
+	RunE: func(_ *cobra.Command, _ []string) error {
+		fmt.Printf("RIP v%s\n", cfg.Version)
+		return nil
+	},
 }
 
 func init() {
 	RootCmd.AddCommand(version)
-}
-
-func versionCmd(cmd *cobra.Command, _ []string) error {
-	fmt.Printf("RIP v%s\n", cfg.Version)
-	return nil
 }

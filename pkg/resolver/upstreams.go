@@ -6,27 +6,21 @@ import (
 
 	"github.com/miekg/dns"
 
-	"github.com/buglloc/rip/pkg/cache"
-	"github.com/buglloc/rip/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/cfg"
 )
 
 var (
-	dnsClient *dns.Client
-	dnsCache  *cache.Cache
-)
-
-func init() {
-	dnsCache = cache.NewCache()
 	dnsClient = &dns.Client{
 		Net:          "tcp",
 		ReadTimeout:  time.Second * 1,
 		WriteTimeout: time.Second * 1,
 	}
-}
+	dnsCache = NewCache()
+)
 
-func ResolveIp(reqType uint16, name string) (net.IP, error) {
-	if ip := dnsCache.Get(reqType, name); ip != nil {
-		return *ip, nil
+func ResolveIp(reqType uint16, name string) ([]net.IP, error) {
+	if ips := dnsCache.Get(reqType, name); ips != nil {
+		return ips, nil
 	}
 
 	msg := &dns.Msg{}
@@ -36,24 +30,24 @@ func ResolveIp(reqType uint16, name string) (net.IP, error) {
 		return nil, err
 	}
 
-	var ip net.IP
+	var ipv4 []net.IP
+	var ipv6 []net.IP
 	for _, rr := range res.Answer {
-		ttl := time.Duration(rr.(dns.RR).Header().Ttl) * time.Second
 		switch rr.(type) {
 		case *dns.A:
-			rip := rr.(*dns.A).A
-			if reqType == dns.TypeA {
-				ip = rip
-			}
-			dnsCache.Set(dns.TypeA, name, ttl, &rip)
+			ipv4 = append(ipv4, rr.(*dns.A).A)
 		case *dns.AAAA:
-			rip := rr.(*dns.AAAA).AAAA
-			if reqType == dns.TypeAAAA {
-				ip = rip
-			}
-			dnsCache.Set(dns.TypeAAAA, name, ttl, &rip)
+			ipv6 = append(ipv6, rr.(*dns.AAAA).AAAA)
 		}
 	}
 
-	return ip, nil
+	ttl := time.Duration(res.Answer[0].(dns.RR).Header().Ttl) * time.Second
+	dnsCache.Set(dns.TypeA, name, ttl, ipv4)
+	dnsCache.Set(dns.TypeAAAA, name, ttl, ipv6)
+
+	if reqType == dns.TypeA {
+		return ipv4, nil
+	}
+
+	return ipv6, nil
 }
