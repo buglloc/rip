@@ -33,11 +33,11 @@ func ResolveIp(reqType uint16, name string) ([]net.IP, error) {
 	var ipv4 []net.IP
 	var ipv6 []net.IP
 	for _, rr := range res.Answer {
-		switch rr.(type) {
+		switch v := rr.(type) {
 		case *dns.A:
-			ipv4 = append(ipv4, rr.(*dns.A).A)
+			ipv4 = append(ipv4, v.A)
 		case *dns.AAAA:
-			ipv6 = append(ipv6, rr.(*dns.AAAA).AAAA)
+			ipv6 = append(ipv6, v.AAAA)
 		}
 	}
 
