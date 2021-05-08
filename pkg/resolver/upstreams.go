@@ -42,12 +42,11 @@ func ResolveIp(reqType uint16, name string) ([]net.IP, error) {
 	}
 
 	ttl := time.Duration(res.Answer[0].(dns.RR).Header().Ttl) * time.Second
-	dnsCache.Set(dns.TypeA, name, ttl, ipv4)
-	dnsCache.Set(dns.TypeAAAA, name, ttl, ipv6)
-
 	if reqType == dns.TypeA {
+		dnsCache.Set(dns.TypeA, name, ttl, ipv4)
 		return ipv4, nil
 	}
 
+	dnsCache.Set(dns.TypeAAAA, name, ttl, ipv6)
 	return ipv6, nil
 }
