@@ -6,12 +6,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	obfuscator "github.com/buglloc/rip/pkg/obfustacor"
+	obfuscator "github.com/buglloc/rip/v2/pkg/obfustacor"
 )
 
 var uglify = &cobra.Command{
 	Use:   "uglify IP",
-	Short: "Obfuscate IP",
+	Short: "Uglify (obfuscate) IP",
 	RunE:  runUglifyCmd,
 }
 

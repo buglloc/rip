@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/buglloc/rip/pkg/cfg"
-	"github.com/buglloc/rip/pkg/cli"
-	"github.com/buglloc/rip/pkg/nssrv"
+	"github.com/buglloc/rip/v2/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/cli"
+	"github.com/buglloc/rip/v2/pkg/nssrv"
 )
 
 var nsServerCmd = &cobra.Command{
@@ -27,7 +27,7 @@ var nsServerCmd = &cobra.Command{
 
 func init() {
 	flags := nsServerCmd.PersistentFlags()
-	flags.String("listen", ":53",
+	flags.String("addr", ":53",
 		"address to listen on")
 	flags.StringSlice("zone", []string{"."},
 		"your zone name (e.g. 'buglloc.com')")
@@ -51,7 +51,10 @@ func init() {
 }
 
 func runServerCmd(_ *cobra.Command, _ []string) error {
-	srv := nssrv.NewSrv()
+	srv, err := nssrv.NewSrv()
+	if err != nil {
+		return err
+	}
 
 	doneChan := make(chan error)
 	go func() {
@@ -85,7 +88,7 @@ func parseServerConfig(_ *cobra.Command, _ []string) error {
 		return errors.New("empty zone list, please provide at leas one")
 	}
 
-	cfg.Addr = viper.GetString("Listen")
+	cfg.Addr = viper.GetString("Addr")
 	cfg.IPv4 = net.ParseIP(viper.GetString("Ipv4"))
 	cfg.IPv6 = net.ParseIP(viper.GetString("Ipv6"))
 	cfg.AllowProxy = !viper.GetBool("NoProxy")

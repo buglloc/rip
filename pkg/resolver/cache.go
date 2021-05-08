@@ -1,4 +1,4 @@
-package cache
+package resolver
 
 import (
 	"net"
@@ -18,22 +18,22 @@ func NewCache() *Cache {
 	}
 }
 
-func (c *Cache) Get(reqType uint16, domain string) *net.IP {
+func (c *Cache) Get(reqType uint16, domain string) []net.IP {
 	if item := c.lruCache.Get(makeKey(reqType, domain)); item != nil && !item.Expired() && item.Value() != nil {
-		return item.Value().(*net.IP)
+		return item.Value().([]net.IP)
 	}
 	return nil
 }
 
-func (c *Cache) Set(reqType uint16, domain string, ttl time.Duration, ip *net.IP) error {
+func (c *Cache) Set(reqType uint16, domain string, ttl time.Duration, ip []net.IP) {
 	key := makeKey(reqType, domain)
 	if ip == nil {
 		c.lruCache.Delete(key)
-		return nil
+		return
 	}
 
 	c.lruCache.Set(key, ip, ttl)
-	return nil
+	return
 }
 
 func makeKey(reqType uint16, domain string) string {

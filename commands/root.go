@@ -9,17 +9,15 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/buglloc/rip/pkg/cli"
+	"github.com/buglloc/rip/v2/pkg/cli"
 )
 
-var (
-	RootCmd = &cobra.Command{
-		Use:          "rip",
-		Short:        "Wildcard DNS",
-		SilenceUsage: false,
-		PreRunE:      parseRootConfig,
-	}
-)
+var RootCmd = &cobra.Command{
+	Use:          "rip",
+	Short:        "Wildcard DNS",
+	SilenceUsage: true,
+	PreRunE:      parseRootConfig,
+}
 
 func init() {
 	cobra.OnInitialize(initConfig)

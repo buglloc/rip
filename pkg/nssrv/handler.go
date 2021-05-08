@@ -1,55 +1,109 @@
 package nssrv
 
 import (
+	"fmt"
+	"sync"
+
 	log "github.com/buglloc/simplelog"
 	"github.com/miekg/dns"
 
-	"github.com/buglloc/rip/pkg/handlers"
+	"github.com/buglloc/rip/v2/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/handlers"
+	"github.com/buglloc/rip/v2/pkg/handlers/defaultip"
+	"github.com/buglloc/rip/v2/pkg/handlers/parser"
 )
 
-func newHandler(zone string) func(w dns.ResponseWriter, req *dns.Msg) {
-	return func(w dns.ResponseWriter, req *dns.Msg) {
-		defer func() { _ = w.Close() }()
-		l := log.Child("client", w.RemoteAddr().String())
-		msg := handle(zone, req, &l)
-		if msg != nil {
-			_ = w.WriteMsg(msg)
-		}
-	}
+var defaultHandler = &defaultip.Handler{}
+
+type cachedHandler struct {
+	handlers.Handler
+	mu sync.Mutex
 }
 
-func handle(zone string, req *dns.Msg, logger *log.Logger) *dns.Msg {
-	response := &dns.Msg{}
-	response.SetReply(req)
+func (h *cachedHandler) Handle(question dns.Question) ([]dns.RR, error) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	ret, _, err := h.Handler.Handle(question)
+	return ret, err
+}
+
+func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dns.Msg {
+	out := &dns.Msg{}
+	out.SetReply(req)
+
+	realHandler := func(question dns.Question, zone string) (*cachedHandler, error) {
+		if len(question.Name)-len(zone) <= 3 {
+			// fast exit
+			return &cachedHandler{
+				Handler: defaultHandler,
+			}, nil
+		}
+
+		//if item != nil &&
+		item := s.cache.Get(question.Name)
+		if item != nil {
+			if item.Expired() {
+				item.Extend(cfg.CacheTTL)
+			}
+			return item.Value().(*cachedHandler), nil
+		}
+
+		ripReq := question.Name[:len(question.Name)-len(zone)-1]
+		h, err := parser.NewParser(ripReq).Next()
+		if err != nil {
+			if err != handlers.ErrEOF {
+				return nil, err
+			}
+
+			if !cfg.UseDefault {
+				return nil, fmt.Errorf("no handlers for request %q available", ripReq)
+			}
+
+			h = defaultHandler
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		ret := &cachedHandler{
+			Handler: h,
+		}
+		s.cache.Set(question.Name, ret, cfg.CacheTTL)
+		return ret, nil
+	}
+
 	for _, question := range req.Question {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
-			l := logger.Child("qtype", typeToString(question.Qtype), "name", question.Name)
-			answers, err := handlers.Handle(question, zone, &l)
+			l := logger.Child("type", typeToString(question.Qtype), "name", question.Name)
+			handler, err := realHandler(question, zone)
 			if err != nil {
-				l.Error("failed to parse request", "type", typeToString(question.Qtype), "name", question.Name, "err", err.Error())
+				l.Error("failed to parse request", "err", err)
 				continue
 			}
 
+			answers, err := handler.Handle(question)
+			if err != nil {
+				l.Error("failed to handle request", "err", err)
+				continue
+			}
+
+			l.Info("cooking response", "answers", fmt.Sprint(answers))
 			if len(answers) == 0 {
 				continue
 			}
 
-			response.Answer = append(response.Answer, answers...)
-		default:
-			logger.Debug("skip unknown request", "type", typeToString(question.Qtype))
-			// TODO(buglloc): should we return SERVFAIL?
-			//msg := &dns.Msg{}
-			//msg.SetRcode(req, dns.RcodeServerFailure)
+			out.Answer = append(out.Answer, answers...)
 		}
 	}
 
-	return response
+	return out
 }
 
 func typeToString(reqType uint16) string {
 	if t, ok := dns.TypeToString[reqType]; ok {
 		return t
 	}
-	return "unknown"
+	return "<unknown>"
 }
