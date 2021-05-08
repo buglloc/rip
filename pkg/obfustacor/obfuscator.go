@@ -12,7 +12,7 @@ func IPv4(ipStr string) []string {
 	result := make([]string, 0)
 	result = append(result, fmt.Sprintf(
 		"%d",
-		(ip[0]<<24)|(ip[1]<<16)|(ip[2]<<8)|ip[3],
+		(int(ip[0])<<24)|(int(ip[1])<<16)|(int(ip[2])<<8)|int(ip[3]),
 	))
 	result = append(result, fmt.Sprintf(
 		"%#x.%#x.%#x.%#x",
@@ -55,7 +55,7 @@ func IPv4(ipStr string) []string {
 		ip[0], ip[1], ip[2], ip[3],
 	))
 
-	decSuffix := (ip[1] << 16) | (ip[2] << 8) | ip[3]
+	decSuffix := (int(ip[1]) << 16) | (int(ip[2]) << 8) | int(ip[3])
 	result = append(result, fmt.Sprintf(
 		"%010o.%d",
 		ip[0], decSuffix,
