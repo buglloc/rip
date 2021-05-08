@@ -115,24 +115,23 @@ func parsePart(part string) handlers.Handler {
 		return ret
 	}
 
-	modifiers := parseModifiers()
 	switch parts[0] {
 	case defaultip.ShortName, defaultip.Name:
-		return defaultip.NewHandler(modifiers...)
+		return defaultip.NewHandler(parseModifiers()...)
 	case cname.ShortName, cname.Name:
-		return cname.NewHandler(modifiers...)
+		return cname.NewHandler(parseModifiers()...)
 	case proxy.ShortName, proxy.Name:
-		return proxy.NewHandler(modifiers...)
+		return proxy.NewHandler(parseModifiers()...)
 	case random.ShortName, random.Name:
-		return random.NewHandler(modifiers...)
+		return random.NewHandler(parseModifiers()...)
 	case loop.ShortName, loop.Name:
-		return loop.NewHandler(modifiers...)
+		return loop.NewHandler(parseModifiers()...)
 	case sticky.ShortName, sticky.Name:
-		return sticky.NewHandler(modifiers...)
+		return sticky.NewHandler(parseModifiers()...)
 	case ipv4.ShortName, ipv4.Name:
-		return ipv4.NewHandler(modifiers...)
+		return ipv4.NewHandler(parseModifiers()...)
 	case ipv6.ShortName, ipv6.Name:
-		return ipv6.NewHandler(modifiers...)
+		return ipv6.NewHandler(parseModifiers()...)
 	default:
 		return parseIPHandler(part)
 	}
