@@ -78,11 +78,11 @@ When requesting it, we should get the following responses:
     8ba299a7.8ba299a8.s.example.com ->  139.162.153.168 (first A request) then 139.162.153.167 (30s), then 139.162.153.168 (next A request) and so on
 
 # Cname
-    ya-ru.c.example.com ->  canonical name ya.ru
-    google-com.c.example.com ->  canonical name google.com
+    ya.ru.c.example.com ->  canonical name ya.ru
+    google.com.c.example.com ->  canonical name google.com
     b32-onxw2zlunbuw4zzomnxw63bnmnxs44tv.c.example.com ->  canonical name something.cool.co.ru
 
 # Proxy
-    ya-ru.p.example.com ->  87.250.250.242 and 2a02:6b8::2:242
-    google-com.p.example.com  ->  64.233.164.102 and 2a00:1450:4010:c07::64
+    ya.ru.p.example.com ->  87.250.250.242 and 2a02:6b8::2:242
+    google.com.p.example.com  ->  64.233.164.102 and 2a00:1450:4010:c07::64
 ```

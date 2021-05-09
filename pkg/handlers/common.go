@@ -10,15 +10,6 @@ import (
 	"github.com/buglloc/rip/v2/pkg/iputil"
 )
 
-func PartToFQDN(part string) string {
-	if strings.Count(part, "-") > 0 {
-		// We have request like something.example-com.c.example.com
-		part = strings.Replace(part, "-", ".", -1)
-	}
-
-	return dns.Fqdn(part)
-}
-
 func PartToIP(part string) net.IP {
 	dotCounts := strings.Count(part, "-")
 
