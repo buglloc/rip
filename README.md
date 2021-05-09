@@ -1,7 +1,13 @@
 # RIP
 A simple DNS server that extracts IP address from the requested domain name and sends it back in the response.
 
-# Encoding rules
+# Usage
+
+  0. Install Go 1.16+
+  1. Perform `go get -u github.com/buglloc/rip/v2`
+  2. Have fun ;)
+
+## Encoding rules
 Since RIP extracts the response from the request, it's important to understand the encoding rules.
 RIP has three kinds of entities:
   - rr - something that generate response (e.g. IP, CNAME and so on):
@@ -28,7 +34,7 @@ RIP has three kinds of entities:
 
 Also, RIP allowing to use any prefixes (see examples below).
 
-# IP address format
+## IP address format
 IP address can be presented in two variants - dash-delimited and base16-form. For example, ips `0a000001` and `10-0-0-1` are equal and points to `10.0.0.1`
 You can also use the built-in converter to encode IP address:
 ```
@@ -36,7 +42,7 @@ $ rip encode fe80::fa94:c2ff:fee5:3cf6 127.0.0.1
 fe80000000000000fa94c2fffee53cf6	7f000001
 ```
 
-# Usage
+## Examples
 Run NS server for zone `example.com` with default IP `77.88.55.70` and `2a02:6b8: a:: a`:
 ```
 $ rip ns --zone=example.com --ipv4=77.88.55.70 --ipv6=2a02:6b8:a::a
