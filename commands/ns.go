@@ -10,6 +10,7 @@ import (
 	"time"
 
 	log "github.com/buglloc/simplelog"
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -45,7 +46,12 @@ func init() {
 		"return default IPs for not supported requests")
 	flags.Bool("no-proxy", false,
 		"disable proxy mode")
-
+	flags.String("http-addr", ":9000",
+		"http address to listen")
+	flags.String("hub-sign", uuid.NewString(),
+		"hub signing key")
+	flags.Bool("with-hub", false,
+		"enable http server")
 	_ = cli.BindPFlags(flags)
 	RootCmd.AddCommand(nsServerCmd)
 }
@@ -96,5 +102,8 @@ func parseServerConfig(_ *cobra.Command, _ []string) error {
 	cfg.Upstream = viper.GetString("Upstream")
 	cfg.TTL = uint32(viper.GetInt("Ttl"))
 	cfg.StickyTTL = time.Duration(viper.GetInt("StickyTtl")) * time.Second
+	cfg.HttpAddr = viper.GetString("HttpAddr")
+	cfg.HubSign = viper.GetString("HubSign")
+	cfg.HubEnabled = viper.GetBool("WithHub")
 	return nil
 }

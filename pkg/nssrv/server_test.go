@@ -3,13 +3,15 @@ package nssrv_test
 import (
 	"context"
 	"fmt"
-	"github.com/buglloc/rip/v2/pkg/cfg"
-	"github.com/buglloc/rip/v2/pkg/nssrv"
-	"github.com/miekg/dns"
-	"github.com/stretchr/testify/require"
 	"net"
 	"testing"
 	"time"
+
+	"github.com/miekg/dns"
+	"github.com/stretchr/testify/require"
+
+	"github.com/buglloc/rip/v2/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/nssrv"
 )
 
 func getFreePort() (int, error) {

@@ -76,7 +76,7 @@ func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dn
 	for _, question := range req.Question {
 		switch question.Qtype {
 		case dns.TypeA, dns.TypeAAAA:
-			l := logger.Child("type", typeToString(question.Qtype), "name", question.Name)
+			l := logger.Child("type", dns.Type(question.Qtype), "name", question.Name)
 			handler, err := realHandler(question, zone)
 			if err != nil {
 				l.Error("failed to parse request", "err", err)
@@ -99,11 +99,4 @@ func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dn
 	}
 
 	return out
-}
-
-func typeToString(reqType uint16) string {
-	if t, ok := dns.TypeToString[reqType]; ok {
-		return t
-	}
-	return "<unknown>"
 }

@@ -1,5 +1,5 @@
 # RIP
-A simple DNS server that extracts IP address (or cname) from the requested domain name and sends it back in the response.
+A simple DNS server that extracts IP address from the requested domain name and sends it back in the response.
 
 # Encoding rules
 Since RIP extracts the response from the request, it's important to understand the encoding rules.
