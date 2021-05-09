@@ -11,11 +11,13 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/buglloc/rip/v2/pkg/cfg"
+	"github.com/buglloc/rip/v2/pkg/www"
 )
 
 type NSSrv struct {
 	tcpServer *dns.Server
 	udpServer *dns.Server
+	wwwServer *www.HttpSrv
 	cache     *ccache.Cache
 }
 
@@ -39,6 +41,10 @@ func NewSrv() (*NSSrv, error) {
 
 	srv.udpServer.Handler = srv.newDNSRouter()
 	srv.tcpServer.Handler = srv.newDNSRouter()
+	if cfg.HubEnabled {
+		srv.wwwServer = www.NewHttpSrv()
+	}
+
 	return srv, nil
 }
 
@@ -62,6 +68,17 @@ func (s *NSSrv) ListenAndServe() error {
 		return err
 	})
 
+	if s.wwwServer != nil {
+		g.Go(func() error {
+			log.Info("starting HTTP-server", "addr", s.wwwServer.Addr())
+			err := s.wwwServer.ListenAndServe()
+			if err != nil {
+				log.Error("can't start HTTP-server", "err", err)
+			}
+			return err
+		})
+	}
+
 	return g.Wait()
 }
 
@@ -74,6 +91,12 @@ func (s *NSSrv) Shutdown(ctx context.Context) error {
 	g.Go(func() error {
 		return s.udpServer.ShutdownContext(ctx)
 	})
+
+	if s.wwwServer != nil {
+		g.Go(func() error {
+			return s.wwwServer.Shutdown(ctx)
+		})
+	}
 
 	done := make(chan error)
 	go func() {

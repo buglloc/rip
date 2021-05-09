@@ -15,6 +15,7 @@ import (
 	"github.com/buglloc/rip/v2/pkg/handlers/ipv6"
 	"github.com/buglloc/rip/v2/pkg/handlers/limiter"
 	"github.com/buglloc/rip/v2/pkg/handlers/loop"
+	"github.com/buglloc/rip/v2/pkg/handlers/notify"
 	"github.com/buglloc/rip/v2/pkg/handlers/proxy"
 	"github.com/buglloc/rip/v2/pkg/handlers/random"
 	"github.com/buglloc/rip/v2/pkg/handlers/sticky"
@@ -116,8 +117,10 @@ func parsePart(part string) handlers.Handler {
 	}
 
 	switch parts[0] {
-	case defaultip.ShortName, defaultip.Name:
-		return defaultip.NewHandler(parseModifiers()...)
+	case ipv4.ShortName, ipv4.Name:
+		return ipv4.NewHandler(parseModifiers()...)
+	case ipv6.ShortName, ipv6.Name:
+		return ipv6.NewHandler(parseModifiers()...)
 	case cname.ShortName, cname.Name:
 		return cname.NewHandler(parseModifiers()...)
 	case proxy.ShortName, proxy.Name:
@@ -128,10 +131,10 @@ func parsePart(part string) handlers.Handler {
 		return loop.NewHandler(parseModifiers()...)
 	case sticky.ShortName, sticky.Name:
 		return sticky.NewHandler(parseModifiers()...)
-	case ipv4.ShortName, ipv4.Name:
-		return ipv4.NewHandler(parseModifiers()...)
-	case ipv6.ShortName, ipv6.Name:
-		return ipv6.NewHandler(parseModifiers()...)
+	case notify.ShortName, notify.Name:
+		return notify.NewHandler()
+	case defaultip.ShortName, defaultip.Name:
+		return defaultip.NewHandler(parseModifiers()...)
 	default:
 		return parseIPHandler(part)
 	}
