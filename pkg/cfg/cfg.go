@@ -20,6 +20,10 @@ var (
 	Upstream = "1.1.1.1:53"
 	// UseDefault enables "strict" mode
 	UseDefault bool
+	HttpAddr   string
+	HubSign    string
+	HubSignTTL = 24 * time.Hour
+	HubEnabled bool
 	AllowProxy bool
 	CacheSize  int64         = 4096
 	CacheTTL                 = 10 * time.Minute
