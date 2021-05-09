@@ -18,34 +18,35 @@ import (
 	"github.com/buglloc/rip/v2/pkg/handlers/notify"
 	"github.com/buglloc/rip/v2/pkg/handlers/proxy"
 	"github.com/buglloc/rip/v2/pkg/handlers/random"
+	"github.com/buglloc/rip/v2/pkg/handlers/slices"
 	"github.com/buglloc/rip/v2/pkg/handlers/sticky"
 )
 
 var _ handlers.Parser = (*Parser)(nil)
 
 type Parser struct {
-	cur     int
-	maxPart int
-	parts   []string
+	cur      int
+	maxLabel int
+	labels   []string
 }
 
 func NewParser(req string) *Parser {
-	parts := strings.Split(req, ".")
-	reverse(parts)
+	labels := strings.Split(req, ".")
+	slices.StringsReverse(labels)
 	return &Parser{
-		cur:     0,
-		maxPart: len(parts),
-		parts:   parts,
+		cur:      0,
+		maxLabel: len(labels),
+		labels:   labels,
 	}
 }
 
 func (p *Parser) Next() (handlers.Handler, error) {
-	if p.cur >= p.maxPart {
+	if p.cur >= p.maxLabel {
 		return nil, handlers.ErrEOF
 	}
 
-	part := p.parts[p.cur]
-	h := parsePart(part)
+	part := p.labels[p.cur]
+	h := parseHandler(part)
 	if h == nil {
 		return nil, handlers.ErrEOF
 	}
@@ -60,11 +61,11 @@ func (p *Parser) Next() (handlers.Handler, error) {
 }
 
 func (p *Parser) NextRaw() (string, error) {
-	if p.cur >= p.maxPart {
+	if p.cur >= p.maxLabel {
 		return "", handlers.ErrEOF
 	}
 
-	ret := p.parts[p.cur]
+	ret := p.labels[p.cur]
 	if strings.HasPrefix(ret, "b32-") {
 		decoded, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(strings.ToUpper(ret[4:]))
 		if err == nil {
@@ -73,6 +74,22 @@ func (p *Parser) NextRaw() (string, error) {
 	}
 	p.cur++
 	return ret, nil
+}
+
+func (p *Parser) RestValues() ([]string, error) {
+	var out []string
+	for {
+		v, err := p.NextValue()
+		if v == "" {
+			return out, nil
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		out = append(out, v)
+	}
 }
 
 func (p *Parser) All() ([]handlers.Handler, error) {
@@ -91,13 +108,55 @@ func (p *Parser) All() ([]handlers.Handler, error) {
 	}
 }
 
-func parsePart(part string) handlers.Handler {
-	if len(part) == 0 {
+func (p *Parser) NextValue() (string, error) {
+	if p.cur >= p.maxLabel {
+		return "", handlers.ErrEOF
+	}
+
+	label := p.labels[p.cur]
+	handlerName := label
+	if indx := strings.IndexByte(handlerName, '-'); indx > 0 {
+		handlerName = handlerName[:indx]
+	}
+
+	switch handlerName {
+	case ipv4.ShortName, ipv4.Name:
+		fallthrough
+	case ipv6.ShortName, ipv6.Name:
+		fallthrough
+	case cname.ShortName, cname.Name:
+		fallthrough
+	case proxy.ShortName, proxy.Name:
+		fallthrough
+	case random.ShortName, random.Name:
+		fallthrough
+	case loop.ShortName, loop.Name:
+		fallthrough
+	case sticky.ShortName, sticky.Name:
+		fallthrough
+	case notify.ShortName, notify.Name:
+		fallthrough
+	case defaultip.ShortName, defaultip.Name:
+		return "", handlers.ErrEOF
+	}
+
+	if strings.HasPrefix(label, "b32-") {
+		decoded, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(strings.ToUpper(label[4:]))
+		if err == nil {
+			label = string(decoded)
+		}
+	}
+	p.cur++
+	return label, nil
+}
+
+func parseHandler(label string) handlers.Handler {
+	if len(label) == 0 {
 		return nil
 	}
 
-	parts := strings.Split(part, "-")
-	parseModifiers := func() []limiter.Limiter {
+	parts := strings.Split(label, "-")
+	parseLimiters := func() []limiter.Limiter {
 		if len(parts) <= 1 {
 			return nil
 		}
@@ -109,7 +168,7 @@ func parsePart(part string) handlers.Handler {
 
 		ret, err := limiter.ParseLimiters(opts)
 		if err != nil {
-			log.Error("can't parse modifiers", "part", part, "err", err)
+			log.Error("can't parse limiter", "label", label, "err", err)
 			return nil
 		}
 
@@ -118,25 +177,25 @@ func parsePart(part string) handlers.Handler {
 
 	switch parts[0] {
 	case ipv4.ShortName, ipv4.Name:
-		return ipv4.NewHandler(parseModifiers()...)
+		return ipv4.NewHandler(parseLimiters()...)
 	case ipv6.ShortName, ipv6.Name:
-		return ipv6.NewHandler(parseModifiers()...)
+		return ipv6.NewHandler(parseLimiters()...)
 	case cname.ShortName, cname.Name:
-		return cname.NewHandler(parseModifiers()...)
+		return cname.NewHandler(parseLimiters()...)
 	case proxy.ShortName, proxy.Name:
-		return proxy.NewHandler(parseModifiers()...)
+		return proxy.NewHandler(parseLimiters()...)
 	case random.ShortName, random.Name:
-		return random.NewHandler(parseModifiers()...)
+		return random.NewHandler(parseLimiters()...)
 	case loop.ShortName, loop.Name:
-		return loop.NewHandler(parseModifiers()...)
+		return loop.NewHandler(parseLimiters()...)
 	case sticky.ShortName, sticky.Name:
-		return sticky.NewHandler(parseModifiers()...)
+		return sticky.NewHandler(parseLimiters()...)
 	case notify.ShortName, notify.Name:
 		return notify.NewHandler()
 	case defaultip.ShortName, defaultip.Name:
-		return defaultip.NewHandler(parseModifiers()...)
+		return defaultip.NewHandler(parseLimiters()...)
 	default:
-		return parseIPHandler(part)
+		return parseIPHandler(label)
 	}
 }
 
@@ -149,12 +208,5 @@ func parseIPHandler(part string) handlers.Handler {
 		return &ipv6.Handler{IP: ip}
 	default:
 		return nil
-	}
-}
-
-func reverse(ss []string) {
-	last := len(ss) - 1
-	for i := 0; i < len(ss)/2; i++ {
-		ss[i], ss[last-i] = ss[last-i], ss[i]
 	}
 }

@@ -93,19 +93,26 @@ func TestParser(t *testing.T) {
 			},
 		},
 		{
-			in: "lalala.example-com.c",
+			in: "lalala.example.com.c",
+			handlers: []handlers.Handler{
+				&cname.Handler{TargetFQDN: "lalala.example.com."},
+			},
+		},
+		{
+			in: "1-1-1-1.v4.example.com.c",
 			handlers: []handlers.Handler{
 				&cname.Handler{TargetFQDN: "example.com."},
+				&ipv4.Handler{IP: net.ParseIP("1.1.1.1").To4()},
 			},
 		},
 		{
-			in: "lalala.example-com.p",
+			in: "lalala.example.com.p",
 			handlers: []handlers.Handler{
-				&proxy.Handler{TargetFQDN: "example.com."},
+				&proxy.Handler{TargetFQDN: "lalala.example.com."},
 			},
 		},
 		{
-			in: "lalala.d.lala-com.p.d.example-com.c.d",
+			in: "lalala.d.lala.com.p.d.example.com.c.d",
 			handlers: []handlers.Handler{
 				&defaultip.Handler{},
 				&cname.Handler{TargetFQDN: "example.com."},
