@@ -34,12 +34,12 @@ func (h *Handler) Name() string {
 
 func (h *Handler) Init(p handlers.Parser) error {
 	var err error
-	h.Nested[0], err = p.Next()
+	h.Nested[0], err = p.NextHandler()
 	if err != nil {
 		return err
 	}
 
-	h.Nested[1], err = p.Next()
+	h.Nested[1], err = p.NextHandler()
 	if err != nil {
 		return err
 	}
