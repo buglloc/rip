@@ -35,7 +35,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="rr in rrs">
+                <tr v-for="rr in rrs" v-bind:class="{ 'table-danger': !rr.ok, 'table-light': rr.ok }">
                     <td><pre>{{rr.time | moment}}</pre></td>
                     <td><pre>{{rr.type}}</pre></td>
                     <td><pre>{{rr.name}}</pre></td>

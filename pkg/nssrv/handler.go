@@ -48,15 +48,14 @@ func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dn
 			return item.Value().(*cachedHandler), nil
 		}
 
-		ripReq := question.Name[:len(question.Name)-len(zone)-1]
-		h, err := parser.NewParser(ripReq).Next()
+		h, err := parser.NewParser(question.Name, zone).Next()
 		if err != nil {
 			if err != handlers.ErrEOF {
 				return nil, err
 			}
 
 			if !cfg.UseDefault {
-				return nil, fmt.Errorf("no handlers for request %q available", ripReq)
+				return nil, fmt.Errorf("no handlers for request %q available", question.Name)
 			}
 
 			h = defaultHandler

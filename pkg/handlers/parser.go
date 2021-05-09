@@ -5,4 +5,5 @@ type Parser interface {
 	Next() (Handler, error)
 	RestValues() ([]string, error)
 	NextRaw() (string, error)
+	FQDN() string
 }
