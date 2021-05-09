@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-const Version = "2.0.1"
+const Version = "2.0.2"
 
 var (
 	// Addr is address to listen on, ":dns" if empty.
