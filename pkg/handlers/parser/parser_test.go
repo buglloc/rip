@@ -223,7 +223,7 @@ func TestParser(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.in, func(t *testing.T) {
-			hndlrs, err := parser.NewParser(tc.in).All()
+			hndlrs, err := parser.NewParser(tc.in, "").All()
 			require.NoError(t, err)
 			require.EqualValues(t, tc.handlers, hndlrs)
 		})
