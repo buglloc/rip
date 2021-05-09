@@ -39,7 +39,7 @@ func (h *Handler) Init(p handlers.Parser) error {
 			return err
 		}
 
-		h.Nested, err = p.Next()
+		h.Nested, err = p.NextHandler()
 		if err != nil {
 			return err
 		}

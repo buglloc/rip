@@ -1,8 +1,9 @@
 package handlers
 
 type Parser interface {
-	All() ([]Handler, error)
-	Next() (Handler, error)
+	RestHandlers() ([]Handler, error)
+	NextHandler() (Handler, error)
+	NextValue() (string, error)
 	RestValues() ([]string, error)
 	NextRaw() (string, error)
 	FQDN() string

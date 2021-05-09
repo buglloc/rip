@@ -48,7 +48,7 @@ func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dn
 			return item.Value().(*cachedHandler), nil
 		}
 
-		h, err := parser.NewParser(question.Name, zone).Next()
+		h, err := parser.NewParser(question.Name, zone).NextHandler()
 		if err != nil {
 			if err != handlers.ErrEOF {
 				return nil, err

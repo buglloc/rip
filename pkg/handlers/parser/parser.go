@@ -51,7 +51,7 @@ func (p *Parser) FQDN() string {
 	return p.fqdn
 }
 
-func (p *Parser) Next() (handlers.Handler, error) {
+func (p *Parser) NextHandler() (handlers.Handler, error) {
 	if p.cur >= p.maxLabel {
 		return nil, handlers.ErrEOF
 	}
@@ -103,10 +103,10 @@ func (p *Parser) RestValues() ([]string, error) {
 	}
 }
 
-func (p *Parser) All() ([]handlers.Handler, error) {
+func (p *Parser) RestHandlers() ([]handlers.Handler, error) {
 	var out []handlers.Handler
 	for {
-		h, err := p.Next()
+		h, err := p.NextHandler()
 		if h == nil {
 			return out, nil
 		}
