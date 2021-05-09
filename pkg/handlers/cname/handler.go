@@ -1,11 +1,14 @@
 package cname
 
 import (
+	"strings"
+
 	"github.com/miekg/dns"
 
 	"github.com/buglloc/rip/v2/pkg/cfg"
 	"github.com/buglloc/rip/v2/pkg/handlers"
 	"github.com/buglloc/rip/v2/pkg/handlers/limiter"
+	"github.com/buglloc/rip/v2/pkg/handlers/slices"
 )
 
 const ShortName = "c"
@@ -31,12 +34,13 @@ func (h *Handler) Name() string {
 }
 
 func (h *Handler) Init(p handlers.Parser) error {
-	name, _ := p.NextRaw()
-	if name == "" {
+	parts, _ := p.RestValues()
+	if len(parts) == 0 {
 		return handlers.ErrUnexpectedEOF
 	}
 
-	h.TargetFQDN = handlers.PartToFQDN(name)
+	slices.StringsReverse(parts)
+	h.TargetFQDN = dns.Fqdn(strings.Join(parts, "."))
 	return nil
 }
 
