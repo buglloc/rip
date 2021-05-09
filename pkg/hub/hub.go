@@ -13,6 +13,7 @@ type Message struct {
 	QType string    `json:"type"`
 	Name  string    `json:"name"`
 	RR    string    `json:"rr"`
+	Ok    bool      `json:"ok"`
 }
 
 type channelMessage struct {

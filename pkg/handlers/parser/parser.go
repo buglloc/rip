@@ -28,16 +28,27 @@ type Parser struct {
 	cur      int
 	maxLabel int
 	labels   []string
+	fqdn     string
 }
 
-func NewParser(req string) *Parser {
-	labels := strings.Split(req, ".")
+func NewParser(fqdn, zone string) *Parser {
+	ripReq := fqdn
+	if len(zone) > 0 {
+		ripReq = fqdn[:len(fqdn)-len(zone)-1]
+	}
+
+	labels := strings.Split(ripReq, ".")
 	slices.StringsReverse(labels)
 	return &Parser{
 		cur:      0,
 		maxLabel: len(labels),
 		labels:   labels,
+		fqdn:     fqdn,
 	}
+}
+
+func (p *Parser) FQDN() string {
+	return p.fqdn
 }
 
 func (p *Parser) Next() (handlers.Handler, error) {
