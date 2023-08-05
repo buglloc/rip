@@ -1,4 +1,7 @@
-name: golangci-lint
+---
+name: CI
+
+# Controls when the workflow will run
 on:
   push:
     tags:
@@ -7,18 +10,53 @@ on:
       - master
       - v2
   pull_request:
+    branches:
+      - master
+permissions:
+  contents: read
 jobs:
-  golangci:
-    strategy:
-      matrix:
-        go-version: [1.20.x]
-        os: [ubuntu-latest]
-    name: lint
-    runs-on: ${{ matrix.os }}
+  golangci-lint:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+      # Get the repositery's code
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Golang
+        uses: actions/setup-go@v3
         with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.39
+          go-version: '1.20.x'
+          check-latest: true
+          cache: true
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v3.4.0
+        with:
+          version: latest
+          args: --verbose
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ubuntu
+        go:
+          - 20
+    name: 'tests on ${{ matrix.platform }} | 1.${{ matrix.go }}.x'
+    runs-on: ${{ matrix.platform }}-latest
+    steps:
+      # Get the repositery's code
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Golang
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.${{ matrix.go }}.x'
+          cache: true
+
+      - name: Run tests
+        run: go clean -testcache && go test -race -cover -covermode=atomic ./...
