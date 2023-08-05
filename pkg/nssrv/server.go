@@ -6,7 +6,7 @@ import (
 	"time"
 
 	log "github.com/buglloc/simplelog"
-	"github.com/karlseguin/ccache"
+	"github.com/karlseguin/ccache/v3"
 	"github.com/miekg/dns"
 	"golang.org/x/sync/errgroup"
 
@@ -18,7 +18,7 @@ type NSSrv struct {
 	tcpServer *dns.Server
 	udpServer *dns.Server
 	wwwServer *www.HttpSrv
-	cache     *ccache.Cache
+	cache     *ccache.Cache[*cachedHandler]
 }
 
 func NewSrv() (*NSSrv, error) {
@@ -36,7 +36,7 @@ func NewSrv() (*NSSrv, error) {
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 5 * time.Second,
 		},
-		cache: ccache.New(ccache.Configure().MaxSize(cfg.CacheSize)),
+		cache: ccache.New(ccache.Configure[*cachedHandler]().MaxSize(cfg.CacheSize)),
 	}
 
 	srv.udpServer.Handler = srv.newDNSRouter()

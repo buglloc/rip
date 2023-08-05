@@ -5,22 +5,22 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/karlseguin/ccache"
+	"github.com/karlseguin/ccache/v3"
 )
 
 type Cache struct {
-	lruCache *ccache.Cache
+	lruCache *ccache.Cache[[]net.IP]
 }
 
 func NewCache() *Cache {
 	return &Cache{
-		lruCache: ccache.New(ccache.Configure()),
+		lruCache: ccache.New(ccache.Configure[[]net.IP]()),
 	}
 }
 
 func (c *Cache) Get(reqType uint16, domain string) []net.IP {
 	if item := c.lruCache.Get(makeKey(reqType, domain)); item != nil && !item.Expired() && item.Value() != nil {
-		return item.Value().([]net.IP)
+		return item.Value()
 	}
 	return nil
 }
