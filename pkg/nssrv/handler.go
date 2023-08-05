@@ -45,7 +45,7 @@ func (s *NSSrv) handleRequest(zone string, req *dns.Msg, logger *log.Logger) *dn
 			if item.Expired() {
 				item.Extend(cfg.CacheTTL)
 			}
-			return item.Value().(*cachedHandler), nil
+			return item.Value(), nil
 		}
 
 		h, err := parser.NewParser(question.Name, zone).NextHandler()
