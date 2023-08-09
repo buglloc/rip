@@ -172,7 +172,7 @@ func parseHandler(label string) handlers.Handler {
 			return nil
 		}
 
-		opts := make(map[string]string, len(parts)-1/2)
+		opts := make(map[string]string, len(parts)/2)
 		for i := 1; i < len(parts)-1; i += 2 {
 			opts[parts[i]] = parts[i+1]
 		}
