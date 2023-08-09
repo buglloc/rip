@@ -1,10 +1,10 @@
 package www
 
 import (
+	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/lestrrat-go/jwx/jwa"
@@ -26,9 +26,13 @@ func NewTokenManager() *tokenManager {
 }
 
 func (c *tokenManager) NewToken() (string, error) {
-	channel := genChannelID()
+	channelID, err := newChannelID()
+	if err != nil {
+		return "", fmt.Errorf("can't create channel id: %w", err)
+	}
+
 	t := jwt.New()
-	if err := t.Set(jwt.SubjectKey, channel); err != nil {
+	if err := t.Set(jwt.SubjectKey, channelID); err != nil {
 		return "", fmt.Errorf("can't set 'sub' to JWT token: %w", err)
 	}
 
@@ -58,9 +62,12 @@ func (c *tokenManager) ParseToken(in string) (string, error) {
 	return token.Subject(), nil
 }
 
-func genChannelID() string {
+func newChannelID() (string, error) {
 	bs := make([]byte, 6)
-	rand.Read(bs[:2])
+	if _, err := rand.Read(bs[:2]); err != nil {
+		return "", fmt.Errorf("rand read: %w", err)
+	}
+
 	binary.BigEndian.PutUint32(bs[2:], uint32(time.Now().Unix()))
-	return hex.EncodeToString(bs)
+	return hex.EncodeToString(bs), nil
 }
