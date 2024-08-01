@@ -8,14 +8,13 @@ on:
       - v*
     branches:
       - master
-      - v2
   pull_request:
     branches:
       - master
 permissions:
   contents: read
 jobs:
-  golangci-lint:
+  staticcheck:
     permissions:
       contents: read
       pull-requests: read
@@ -28,15 +27,17 @@ jobs:
       - name: Set up Golang
         uses: actions/setup-go@v3
         with:
-          go-version: '1.20.x'
+          go-version: "1.22.x"
           check-latest: true
           cache: true
 
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v3.4.0
+      - run: "go test ./..."
+      - run: "go vet ./..."
+      - uses: dominikh/staticcheck-action@v1.3.1
         with:
-          version: latest
-          args: --verbose
+          version: "2023.1.7"
+          install-go: false
+
   test:
     strategy:
       fail-fast: false
@@ -44,9 +45,9 @@ jobs:
         platform:
           - ubuntu
         go:
-          - 20
-    name: 'tests on ${{ matrix.platform }} | 1.${{ matrix.go }}.x'
-    runs-on: ${{ matrix.platform }}-latest
+          - 22
+    name: "tests on ${{ matrix.platform }} | 1.${{ matrix.go }}.x"
+    runs-on: "${{ matrix.platform }}-latest"
     steps:
       # Get the repositery's code
       - name: Checkout
@@ -55,7 +56,7 @@ jobs:
       - name: Set up Golang
         uses: actions/setup-go@v3
         with:
-          go-version: '1.${{ matrix.go }}.x'
+          go-version: "1.${{ matrix.go }}.x"
           cache: true
 
       - name: Run tests
