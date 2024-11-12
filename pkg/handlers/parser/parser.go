@@ -37,7 +37,7 @@ func NewParser(fqdn, zone string) *Parser {
 		ripReq = fqdn[:len(fqdn)-len(zone)-1]
 	}
 
-	labels := strings.Split(ripReq, ".")
+	labels := strings.Split(strings.ToLower(ripReq), ".")
 	slices.StringsReverse(labels)
 	return &Parser{
 		cur:      0,
