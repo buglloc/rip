@@ -27,7 +27,7 @@ jobs:
       - name: Set up Golang
         uses: actions/setup-go@v3
         with:
-          go-version: "1.22.x"
+          go-version: '1.24.x'
           check-latest: true
           cache: true
 
@@ -35,7 +35,7 @@ jobs:
       - run: "go vet ./..."
       - uses: dominikh/staticcheck-action@v1.3.1
         with:
-          version: "2023.1.7"
+          version: "2025.1"
           install-go: false
 
   test:
@@ -45,16 +45,16 @@ jobs:
         platform:
           - ubuntu
         go:
-          - 22
+          - 24
     name: "tests on ${{ matrix.platform }} | 1.${{ matrix.go }}.x"
     runs-on: "${{ matrix.platform }}-latest"
     steps:
       # Get the repositery's code
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Golang
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: "1.${{ matrix.go }}.x"
           cache: true

@@ -1,6 +1,6 @@
 module github.com/buglloc/rip/v2
 
-go 1.20
+go 1.24
 
 require (
 	github.com/buglloc/simplelog v0.0.0-20190311170333-2fbd6fd42b73
