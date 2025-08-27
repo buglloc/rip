@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/buglloc/simplelog v0.0.0-20190311170333-2fbd6fd42b73
-	github.com/go-chi/chi/v5 v5.2.2
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/karlseguin/ccache/v3 v3.0.6
