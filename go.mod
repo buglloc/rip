@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.3
-	github.com/karlseguin/ccache/v3 v3.0.6
+	github.com/karlseguin/ccache/v3 v3.0.7
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/miekg/dns v1.1.68
 	github.com/mitchellh/go-homedir v1.1.0
