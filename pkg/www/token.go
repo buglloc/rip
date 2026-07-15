@@ -4,11 +4,12 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
-	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwt"
+	"github.com/lestrrat-go/jwx/v3/jwa"
+	"github.com/lestrrat-go/jwx/v3/jwt"
 
 	"github.com/buglloc/rip/v2/pkg/cfg"
 )
@@ -40,7 +41,7 @@ func (c *tokenManager) NewToken() (string, error) {
 		return "", fmt.Errorf("can't set 'iat' to JWT token: %w", err)
 	}
 
-	token, err := jwt.Sign(t, jwa.HS256, c.signKey)
+	token, err := jwt.Sign(t, jwt.WithKey(jwa.HS256(), c.signKey))
 	if err != nil {
 		return "", fmt.Errorf("can't sign token: %w", err)
 	}
@@ -49,17 +50,26 @@ func (c *tokenManager) NewToken() (string, error) {
 }
 
 func (c *tokenManager) ParseToken(in string) (string, error) {
-	token, err := jwt.Parse([]byte(in), jwt.WithVerify(jwa.HS256, c.signKey))
+	token, err := jwt.Parse([]byte(in), jwt.WithKey(jwa.HS256(), c.signKey))
 	if err != nil {
 		return "", err
 	}
 
-	iat := token.IssuedAt()
-	if time.Since(iat) >= c.ttl {
-		return "", fmt.Errorf("expired token")
+	iat, ok := token.IssuedAt()
+	if !ok {
+		return "", errors.New("missing token issue time")
 	}
 
-	return token.Subject(), nil
+	if time.Since(iat) >= c.ttl {
+		return "", errors.New("expired token")
+	}
+
+	subject, ok := token.Subject()
+	if !ok {
+		return "", errors.New("missing token subject")
+	}
+
+	return subject, nil
 }
 
 func newChannelID() (string, error) {
