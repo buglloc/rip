@@ -13,6 +13,8 @@ on:
       - master
 permissions:
   contents: read
+env:
+  GOTOOLCHAIN: local
 jobs:
   staticcheck:
     permissions:
@@ -22,10 +24,10 @@ jobs:
     steps:
       # Get the repositery's code
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Golang
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: '1.27.x'
           check-latest: true
@@ -52,10 +54,10 @@ jobs:
     steps:
       # Get the repositery's code
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up Golang
-        uses: actions/setup-go@v7
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: "1.${{ matrix.go }}.x"
           cache: true
