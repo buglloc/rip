@@ -3,9 +3,11 @@ A simple DNS server that extracts IP address from the requested domain name and 
 
 # Usage
 
-  0. Install Go 1.26+.
+  0. Install Go 1.26+ (recommended toolchain: Go 1.27.3).
   1. Install with `go install github.com/buglloc/rip/v2@latest`
   2. Have fun ;)
+
+CI tests Go 1.26 and 1.27. Docker images use Debian 13 (trixie).
 
 ## Encoding rules
 Since RIP extracts the response from the request, it's important to understand the encoding rules.

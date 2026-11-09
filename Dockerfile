@@ -1,4 +1,4 @@
-FROM golang:1.27 AS build
+FROM golang:1.27.3-trixie AS build
 
 WORKDIR /go/src/app
 COPY . .
@@ -6,7 +6,7 @@ COPY . .
 RUN go mod download
 RUN go build -o /go/bin/rip
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 COPY --from=build /go/bin/rip /usr/sbin/rip
 
